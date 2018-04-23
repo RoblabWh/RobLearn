@@ -2,5 +2,5 @@
 
 . gazebo_env.sh
 
-gzclient world1.sdf
+gzclient
 echo $GAZEBO_MODEL_PATH
