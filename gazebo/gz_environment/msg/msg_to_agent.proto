@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+message MsgToAgent {
+  repeated float observation = 1 [packed=true];
+  required float reward = 2;
+  required bool done = 3;
+  required string info = 4;
+}

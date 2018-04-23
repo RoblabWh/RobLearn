@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+message MsgToEnvironment {
+  required float linear_velocity = 1;
+  required float angular_velocity = 2;
+  required bool reset_environment = 3;
+}
