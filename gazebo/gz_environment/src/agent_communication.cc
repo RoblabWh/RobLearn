@@ -12,15 +12,18 @@ AgentCommunication::AgentCommunication(unsigned short port):
     endpoint(boost::asio::ip::tcp::v4(), port),
     acceptor(io_service, endpoint),
     socket(io_service)
-{
-    MESSAGE_WARN("using port: " << port);
-
+{   
     this->buffer_read_msg = new char [STD_MEMORY_ALLOCATED_BUFFER_READ_MSG];
     this->buffer_read_msg_length = new char [STD_MEMORY_ALLOCATED_BUFFER_READ_LENGTH_MSG];
     this->buffer_write_msg = new char [STD_MEMORY_ALLOCATED_BUFFER_WRITE_MSG];
 
+
     acceptor.listen();
     acceptor.async_accept(socket,boost::bind(&AgentCommunication::handler_accept,this, boost::asio::placeholders::error));
+
+    MESSAGE_INFO("Wait for agent connection on port: " << port << ".");
+
+    is_terminated = false;
 }
 
 AgentCommunication::~AgentCommunication()
@@ -44,7 +47,8 @@ void AgentCommunication::handler_accept(const boost::system::error_code &error)
         io_service.stop();
     }
     else {
-        acceptor.close();
+        MESSAGE_INFO("Connection established!");
+        this->acceptor.close();
         this->read_msg_to_environment_length();
     }
 }
@@ -57,7 +61,6 @@ void AgentCommunication::handler_read_msg_to_environment(const boost::system::er
     } else {
         std::shared_ptr<MsgToEnvironment> msg(new MsgToEnvironment);
         msg->ParseFromArray(buffer_read_msg, bytes_transferred);
-
 
         signal_process_msg_to_environment(msg);
         read_msg_to_environment_length();
@@ -79,8 +82,6 @@ void AgentCommunication::handler_read_msg_to_environment_length(const boost::sys
     #if __BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
         msg_length = bswap_32(msg_length);
     #endif
-
-
 
         this->read_msg_to_environment(msg_length);
     }
@@ -111,7 +112,7 @@ void AgentCommunication::write_msg_to_agent(std::shared_ptr<MsgToAgent> msg)
 
     memcpy(buffer_write_msg, &msg_length, 4);
 
-    msg->SerializePartialToArray(buffer_write_msg + 4, msg->ByteSize());
+    msg->SerializeToArray(buffer_write_msg + 4, msg->ByteSize());
 
     boost::asio::async_write(socket, boost::asio::buffer(buffer_write_msg, total_length), boost::bind(&AgentCommunication::handler_write_msg_to_agent, this, boost::asio::placeholders::error ,boost::asio::placeholders::bytes_transferred));
 }
@@ -130,10 +131,23 @@ void AgentCommunication::read_msg_to_environment(unsigned int msg_length)
 
 void AgentCommunication::run()
 {
-    try {
-        io_service.run();
-    } catch (boost::system::error_code ec){
-        MESSAGE_ERROR("[AgentCommunication][run]: " << ec.message());
+
+    while (!is_terminated)
+    {
+        try {
+            io_service.run();
+        } catch (boost::system::error_code ec){
+            if (boost::asio::error::make_error_code(boost::asio::error::eof) == ec || boost::asio::error::make_error_code(boost::asio::error::connection_reset) == ec) {
+                MESSAGE_WARN("[AgentCommunication][run]: " << ec.message());
+
+                this->reconnecting();
+            }
+            else
+            {
+                MESSAGE_ERROR("[AgentCommunication][run]: " << ec.message() << ". Terminated the program.");
+                is_terminated = true;
+            }
+        }
     }
 }
 
@@ -145,4 +159,27 @@ boost::signals2::signal<void (std::shared_ptr<MsgToEnvironment>)> &AgentCommunic
 void AgentCommunication::process_msgs_to_agent(std::shared_ptr<MsgToAgent> msg)
 {
     this->write_msg_to_agent(msg);
+}
+
+bool AgentCommunication::terminated()
+{
+    return is_terminated;
+}
+
+void AgentCommunication::reconnecting()
+{
+    MESSAGE_INFO("Reset connection.");
+
+    io_service.reset();
+
+    this->acceptor.close();
+    this->socket.close();
+
+    this->acceptor = boost::asio::ip::tcp::acceptor(this->io_service, this->endpoint);
+    this->socket = boost::asio::ip::tcp::socket(this->io_service);
+
+    acceptor.listen();
+    acceptor.async_accept(socket,boost::bind(&AgentCommunication::handler_accept,this, boost::asio::placeholders::error));
+
+    MESSAGE_INFO("Ready for reconnecting.");
 }

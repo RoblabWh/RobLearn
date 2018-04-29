@@ -27,6 +27,7 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
+        model.add(Dense(512, input_dim=self.state_size, activation='relu'))
         model.add(Dense(256, input_dim=self.state_size, activation='relu'))
         model.add(Dense(128, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
@@ -106,7 +107,7 @@ if __name__ == "__main__":
         state = np.reshape(state, [1, state_size])
 
 
-        for time in range(250):
+        for time in range(500):
             action = agent.act(state)
 
             linear, angular = convert_action(action)
@@ -125,5 +126,5 @@ if __name__ == "__main__":
                 break
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
-        # if e % 10 == 0:
-        #     agent.save("./save/cartpole-dqn.h5")
+        if e % 1000 == 0:
+             agent.save("./save/dqn" + str(e) + ".h5")

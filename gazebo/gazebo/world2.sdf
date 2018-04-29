@@ -64,9 +64,9 @@
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type='adiabatic'/>
     <physics name='default_physics' default='0' type='ode'>
-      <max_step_size>0.001</max_step_size>
+      <max_step_size>0.004</max_step_size>
       <real_time_factor>1</real_time_factor>
-      <real_time_update_rate>4000</real_time_update_rate>      
+      <real_time_update_rate>5000</real_time_update_rate>      
       <ode>
         <solver>
           <type>quick</type>
@@ -95,8 +95,8 @@
     </include>
 
     <include>
-      <uri>model://Parkour1</uri>
-      <name>parkour1</name>
+      <uri>model://Parkour2</uri>
+      <name>parkour</name>
       <pose>0 0 0 0 0 0</pose>
     </include>
 
