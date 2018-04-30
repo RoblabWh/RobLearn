@@ -21,7 +21,8 @@ bool Environment::init(int argc, char *argv[])
 void Environment::run()
 {
     MESSAGE_INFO("Starting laserscan synchronisation!");
-    this->synchronize_laserscan(10);
+
+    this->synchronize_laserscan(2);
 
     MESSAGE_INFO("Laserscan synchronisation done!");
 
@@ -49,6 +50,6 @@ void Environment::synchronize_laserscan(unsigned int steps)
         gazebo_communication->send_world_control_steps(steps);
 
         // wait for a while of the laserscan message
-        usleep(10000);
+        usleep(1000);
     }
 }

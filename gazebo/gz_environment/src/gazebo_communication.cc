@@ -11,7 +11,7 @@ const static std::string TOPIC_NAME_TURTLEBOT2_VELOCITY_CMD = "/gazebo/default/t
 const static std::string TOPIC_NAME_TURTLEBOT2_MODEL_MODIFY = "/gazebo/default/model/modify";
 
 const static std::string ROBOT_NAME = "turtlebot2";
-const static int STD_WORLD_STEPS = 200;
+const static int STD_WORLD_STEPS = 50;
 const static int STD_TO_START_POSITION_CYCLES = 3;
 
 GazeboCommunication::GazeboCommunication()
@@ -119,6 +119,10 @@ bool GazeboCommunication::init(int argc, char *argv[])
         return false;
     }
 
+    MESSAGE_INFO("Connecting to Gazebo Server.");
+    MESSAGE_INFO("address: " << address);
+    MESSAGE_INFO("port:    " << port);
+
     this->node = gazebo::transport::NodePtr(new gazebo::transport::Node());
     this->node->Init();
 
@@ -131,6 +135,8 @@ bool GazeboCommunication::init(int argc, char *argv[])
     this->publisher_world_control->WaitForConnection();
     this->publisher_turtlebot2_velocity_cmd->WaitForConnection();
     this->publisher_turtlebot2_model_modify->WaitForConnection();
+
+    MESSAGE_INFO("Connecting done.");
 }
 
 unsigned short GazeboCommunication::get_port()
@@ -191,13 +197,13 @@ void GazeboCommunication::send_model_modify_turtlebot2_pose(const gazebo::math::
     gazebo::msgs::Quaternion *msg_quaternion = new gazebo::msgs::Quaternion();
     gazebo::msgs::Vector3d *msg_vector = new gazebo::msgs::Vector3d();
 
-    // set angular velocity
+    // set rotation
     msg_quaternion->set_w(pose.rot.w);
     msg_quaternion->set_x(pose.rot.x);
     msg_quaternion->set_y(pose.rot.y);
     msg_quaternion->set_z(pose.rot.z);
 
-    // set linaer velocity
+    // set position
     msg_vector->set_x(pose.pos.x);
     msg_vector->set_y(pose.pos.y);
     msg_vector->set_z(pose.pos.z);

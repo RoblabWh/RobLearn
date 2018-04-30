@@ -11,11 +11,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="py_agent.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="py_agent.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/py_agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="555">
-              <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+            <state relative-caret-position="538">
+              <caret line="83" column="5" lean-forward="false" selection-start-line="83" selection-start-column="5" selection-end-line="83" selection-end-column="5" />
               <folding>
                 <element signature="e#20#33#0" expanded="true" />
               </folding>
@@ -23,24 +23,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ddqn.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ddqn.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dqn.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="dqn.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dqn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="13" lean-forward="false" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-              <folding>
-                <element signature="e#24#37#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-976">
+              <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -68,8 +56,8 @@
       <file leaf-file-name="_socket.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/243609170/_socket.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12330">
-              <caret line="822" column="39" lean-forward="false" selection-start-line="822" selection-start-column="39" selection-end-line="822" selection-end-column="39" />
+            <state relative-caret-position="269">
+              <caret line="820" column="8" lean-forward="false" selection-start-line="820" selection-start-column="8" selection-end-line="820" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -111,8 +99,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/ddqn.py" />
-        <option value="$PROJECT_DIR$/py_agent.py" />
         <option value="$PROJECT_DIR$/dqn.py" />
+        <option value="$PROJECT_DIR$/py_agent.py" />
       </list>
     </option>
   </component>
@@ -137,6 +125,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -148,8 +138,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -168,7 +156,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.dqn">
+  <component name="RunManager" selected="Python.py_agent">
     <configuration name="dqn" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -211,8 +199,8 @@
     </list>
     <recent_temporary>
       <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Python.dqn" />
-        <item index="1" class="java.lang.String" itemvalue="Python.py_agent" />
+        <item index="0" class="java.lang.String" itemvalue="Python.py_agent" />
+        <item index="1" class="java.lang.String" itemvalue="Python.dqn" />
       </list>
     </recent_temporary>
   </component>
@@ -268,12 +256,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/ddqn.py</url>
-          <line>1</line>
-        </line-breakpoint>
-      </breakpoints>
       <option name="time" value="1" />
     </breakpoint-manager>
     <watches-manager />
@@ -636,29 +618,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/243609170/_socket.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12330">
-          <caret line="822" column="39" lean-forward="false" selection-start-line="822" selection-start-column="39" selection-end-line="822" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ddqn.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/py_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
-          <folding>
-            <element signature="e#20#33#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -688,10 +652,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dqn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="13" lean-forward="false" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+        <state relative-caret-position="-976">
+          <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/243609170/_socket.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="269">
+          <caret line="820" column="8" lean-forward="false" selection-start-line="820" selection-start-column="8" selection-end-line="820" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/py_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="538">
+          <caret line="83" column="5" lean-forward="false" selection-start-line="83" selection-start-column="5" selection-end-line="83" selection-end-column="5" />
           <folding>
-            <element signature="e#24#37#0" expanded="true" />
+            <element signature="e#20#33#0" expanded="true" />
           </folding>
         </state>
       </provider>

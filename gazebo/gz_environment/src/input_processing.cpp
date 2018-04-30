@@ -2,8 +2,8 @@
 
 #include <cmath>
 
-const static float STD_COLLISION_RANGE = 0.30f;
-const static float STD_GOAL_RADIUS = 1.5f;
+const static float STD_COLLISION_RANGE = 0.25f;
+const static float STD_GOAL_RADIUS = 2.0f;
 
 InputProcessing::InputProcessing()
 {

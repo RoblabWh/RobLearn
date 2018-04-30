@@ -12,21 +12,46 @@ class EnvironmentGazebo:
     __address = ""
     __port = 0
 
+    __timeout = 2.5
+
     __socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def __init__(self, address: str="127.0.0.1", port:  int=21345):
+    def __init__(self, address: str = "127.0.0.1", port: int = 21345):
         self.__address = address
         self.__port = port
 
     def init(self):
+        self.__socket.settimeout(self.__timeout)
         self.__socket.connect((self.__address, self.__port))
 
+        print("Connect to environment.")
+
+    def __reconnecting(self):
+        self.__socket.close()
+
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket.settimeout(self.__timeout)
+
+        time.sleep(0.5)
+
+        self.init()
+
     def step(self, linear_velocity: float, angular_velocity: float):
-        self.__send_msg_to_environment(linear_velocity, angular_velocity, False)
 
-        msg = self.__receive_msg_to_agent()
+        success = False
 
-        return msg.observation, msg.reward, msg.done, msg.info
+        while not success:
+            try:
+
+                self.__send_msg_to_environment(linear_velocity, angular_velocity, False)
+
+                msg = self.__receive_msg_to_agent()
+
+                return msg.observation, msg.reward, msg.done, msg.info
+            except socket.timeout:
+                print("[EnvironmentGazebo][step]: TimeoutException. Try to reconnect.")
+
+                self.__reconnecting()
 
     def __send_msg_to_environment(self, linear_velocity: float, angular_velocity: float, reset):
         msg = MsgToEnvironment()
@@ -56,18 +81,13 @@ class EnvironmentGazebo:
         return msg
 
 
-
-
-
-
-
 def main():
     env = EnvironmentGazebo()
 
     env.init()
 
     while True:
-        time.sleep(0.0001)
+        # time.sleep(0.001)
         next_state, reward, done, _ = env.step(random.uniform(1, 2), random.uniform(-1.0, 1.0))
 
 

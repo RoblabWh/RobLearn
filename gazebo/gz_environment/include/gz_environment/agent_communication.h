@@ -25,6 +25,10 @@ private:
     char * buffer_read_msg;
     char * buffer_write_msg;
 
+    bool is_terminated;
+
+    void reconnecting();
+
 public:
 
     AgentCommunication(unsigned short port);
@@ -38,6 +42,7 @@ public:
     void read_msg_to_environment(unsigned int msg_length);
     void write_msg_to_agent(std::shared_ptr<MsgToAgent> msg);
     void process_msgs_to_agent(std::shared_ptr<MsgToAgent> msg);
+    bool terminated();
     boost::signals2::signal<void (std::shared_ptr<MsgToEnvironment>)> &get_signal_process_msg_to_environment();
 };
 
