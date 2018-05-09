@@ -184,6 +184,7 @@
       </visual>
       <pose frame=''>-2 -13.5 0 0 0 -1.5708</pose>
     </link>
+<!--
     <link name='Wall_5'>
       <collision name='Wall_5_Collision'>
         <geometry>
@@ -210,6 +211,7 @@
       </visual>
       <pose frame=''>0 -15 0 0 -0 0</pose>
     </link>
+-->
     <link name='Wall_6'>
       <collision name='Wall_6_Collision'>
         <geometry>
