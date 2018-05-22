@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import pysim2d
+from pysim2d import pysim2d
 import math
 import numpy as np
 
