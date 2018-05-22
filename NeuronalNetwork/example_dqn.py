@@ -126,7 +126,7 @@ if __name__ == "__main__":
             state = next_state
             
 
-            #env.visualize()
+            env.visualize()
 
             if done:
                 print("episode: {}/{}, score: {}, e: {:.2} time:{}"
