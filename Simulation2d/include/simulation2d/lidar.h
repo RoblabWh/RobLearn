@@ -139,6 +139,11 @@ public:
         return laser_y[index] * laser_distance[index];
     }
 
+    inline float get_laser_distance_normalized(const int index) const
+    {
+        return laser_distance[index] / range_max;
+    }
+
     inline Eigen::Vector2f get_laser_point_at(const int index) const
     {
         return Eigen::Vector2f(laser_x[index], laser_y[index]);

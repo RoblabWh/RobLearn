@@ -8,13 +8,19 @@
 class Visualization_Gnuplot
 {
 private:
-    Eigen::Vector2f point_min;
-    Eigen::Vector2f point_max;
+    float min_x;
+    float max_x;
+    float min_y;
+    float max_y;
+
+    bool is_initialized;
 
     FILE *pipe;
+
+    void init(const DataContainer &data);
+
 public:
     Visualization_Gnuplot();
     ~Visualization_Gnuplot();
-    void init(const DataContainer &data);
     void visualize(const Robot &robot, const DataContainer &data);
 };

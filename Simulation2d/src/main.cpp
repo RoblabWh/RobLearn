@@ -3,7 +3,6 @@
 #include "simulation2d/data_container.h"
 #include "simulation2d/line.h"
 
-#include <SDL2/SDL.h>
 
 #include <iostream>
 #include <stdlib.h>
@@ -11,36 +10,32 @@
 
 
 
+
 int main(int argc, char *argv[])
 {
-    //SDL_Init(SDL_INIT_VIDEO);
     Simulation2D simulation;
 
-    simulation.test();
-    simulation.init();
-
+    simulation.init("");
 
     auto start = std::chrono::steady_clock::now();
 
 
-    simulation.set_robot_pose(0,0,M_PI_4);
+    simulation.set_robot_pose(1,0,0);
 
-    for (int i = 0; i < 2500; ++i) {
+    for (int i = 0; i < 1; ++i) {
 
 
         for (int j = 0; j < 40; ++j) {
-            simulation.step(0.1,0.05);
+            simulation.step(0.0,0.0);
         }
+        //std::cout << i << std::endl;
         simulation.visualize();
-
 
         //Eigen::Affine2f pose = simulation.get_robot_pose();
         //std::cout << pose.matrix() << std::endl;
     }
 
     std::cout << std::flush;
-
-
 
 
     auto end = std::chrono::steady_clock::now();
@@ -55,3 +50,4 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
+
