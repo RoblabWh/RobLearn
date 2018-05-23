@@ -17,5 +17,7 @@ BOOST_PYTHON_MODULE(pysim2d)
         .def("get_robot_pose_orientation", &Simulation2D::get_robot_pose_orientation)
         .def("observation_size", &Simulation2D::observation_size)
         .def("observation_at", &Simulation2D::observation_at)
+        .def("observation_min_clustered_at", &Simulation2D::observation_min_clustered_at)
+        .def("observation_min_clustered_size", &Simulation2D::observation_min_clustered_size)
         .def("done", &Simulation2D::done);
 }

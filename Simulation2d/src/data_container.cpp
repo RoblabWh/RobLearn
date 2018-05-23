@@ -174,6 +174,8 @@ void DataContainer::calculate_lidar_collision(Robot &robot)
             lidar.calculate_laser_collision_from_circle(pose, this->get_circle_point_at(i), this->get_circle_radius_at(i));
         }  
     }
+
+    lidar.apply_bias();
 }
 
 /**************************************************************************************

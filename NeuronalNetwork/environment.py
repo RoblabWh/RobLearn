@@ -15,6 +15,7 @@ class Environment:
     __last_y = 0
     __last_orientation = 0
     __target_radius = 1
+    __cluster_size = 1
 
     def __init__(self):
         self.__env.init("")
@@ -24,12 +25,30 @@ class Environment:
         y = y1 - y2
         return math.sqrt(x*x + y*y)
 
+    def set_cluster_size(self, size):
+        self.__cluster_size = size
+
+    def observation_size(self):
+        if self.__cluster_size < 2:
+            return self.__env.observation_size()
+        else:
+            return self.__env.observation_min_clustered_size(self.__cluster_size)
+
     def __get_observation(self):
         size = self.__env.observation_size()
         observation = []
 
         for i in range(size):
             observation.append(self.__env.observation_at(i))
+
+        return observation
+
+    def __get_observation_min_clustered(self, cluster_size: int):
+        size = self.__env.observation_min_clustered_size(self.__cluster_size)
+        observation = []
+        
+        for i in range(size):
+            observation.append(self.__env.observation_min_clustered_at(i, self.__cluster_size))
 
         return observation
 
@@ -75,12 +94,13 @@ class Environment:
     def step(self,linear_velocity:float, angular_velocity:float, skip_number:int = 1):
         self.__env.step(linear_velocity, angular_velocity,skip_number)
 
-
         reward, done = self.__calculate_reward()
+        observation = []
 
-        observation = self.__get_observation()
-
-
+        if self.__cluster_size < 2:
+            observation = self.__get_observation()
+        else:
+            observation = self.__get_observation_min_clustered(self.__cluster_size)
 
         return observation, reward, done, ""
         

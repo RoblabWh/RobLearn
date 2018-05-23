@@ -61,6 +61,26 @@ public:
         return this->collision;
     }
 
+    inline float observation_min_clustered_at(int index, const int cluster_size) const
+    {
+        float value = 1.0f;
+        index *= cluster_size;
+        int index_end = std::min(index + cluster_size, robot.get_lidar().get_laser_size());
+
+        while(index < index_end)
+        {
+            value = std::min(value, robot.get_lidar().get_laser_distance_normalized(index));
+            index++;
+        }
+
+        return value;
+    }
+
+    inline int observation_min_clustered_size(const int cluster_size) const
+    {
+        return robot.get_lidar().get_laser_size() / cluster_size;
+    }
+
 };
 
 

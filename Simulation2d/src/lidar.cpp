@@ -28,6 +28,7 @@ Lidar::Lidar(float hz, float angle_step, float angle_min, float angle_max, float
 
 void Lidar::create_laser()
 {
+    srand(time(NULL)); // random seed for bias
     const int iteration = std::abs((-angle_min + angle_max) / angle_step)+1;
 
     this->avx_laser_size = calculate_avx_size(iteration);
@@ -212,6 +213,16 @@ void Lidar::calculate_laser_collision_from_circle_wolfram(const float r, const f
                 laser_distance[i] = std::min(laser_distance[i], std::min(distance1, distance2));
             }
         }
+    }
+}
+
+void Lidar::apply_bias()
+{
+    const float div = 1 / static_cast<float>(RAND_MAX);
+
+    for (int i = 0; i < laser_distance.size(); ++i) {
+        laser_distance[i] += ((static_cast<float>(rand()) * div) * 2.0f - 1.0f) * this->bias;
+        laser_distance[i] = std::max(std::min(laser_distance[i], this->range_max), this->range_min);
     }
 }
 

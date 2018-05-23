@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
 
     std::cout << std::flush;
 
-
     auto end = std::chrono::steady_clock::now();
 
     auto diff = end - start;

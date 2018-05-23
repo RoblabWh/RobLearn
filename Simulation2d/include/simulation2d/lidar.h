@@ -91,8 +91,7 @@ public:
 
     void calculate_laser_collision_from_line(const Eigen::Affine2f &pose, Eigen::Vector2f point1, Eigen::Vector2f point2);
     void calculate_laser_collision_from_circle(const Eigen::Affine2f &pose, Eigen::Vector2f point, const float radius);
-
-
+    void apply_bias();
 
 
     float get_angle_min() const;
@@ -153,5 +152,7 @@ public:
     {
         return Eigen::Vector2f(laser_x[index], laser_y[index]) * laser_distance[index];
     }
+
+
 
 };

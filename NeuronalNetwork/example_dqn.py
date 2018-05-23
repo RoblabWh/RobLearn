@@ -27,7 +27,7 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(64, input_dim=self.state_size, activation='relu'))
+        model.add(Dense(32, input_dim=self.state_size, activation='relu'))
         model.add(Dense(16, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
@@ -88,8 +88,9 @@ def convert_action(action):
 
 if __name__ == "__main__":
     env = Environment()
+    env.set_cluster_size(20)
 
-    state_size = 1081
+    state_size = env.observation_size()
     action_size = 5
     agent = DQNAgent(state_size, action_size)
     # agent.load("./save/cartpole-dqn.h5")
@@ -105,7 +106,7 @@ if __name__ == "__main__":
         env.set_start(-9.5,-9.5,1.57079632679)
         env.set_target(9,9)
 
-        state, _, _, _ = env.step(0.0, 0.0)
+        state, _, _, _ = env.step(0.0, 0.0,1)
 
 	
         state = np.reshape(state, [1, state_size])
