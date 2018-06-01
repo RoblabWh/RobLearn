@@ -42,6 +42,8 @@ private:
     /****************************************************************
      * AVX PART
      ****************************************************************/
+    #include <immintrin.h>
+
     inline __m256 avx_load_laser_x(const int index)
     {
         return _mm256_loadu_ps(laser_x.data() + index);

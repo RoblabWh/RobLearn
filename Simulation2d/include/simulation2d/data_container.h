@@ -3,7 +3,7 @@
 #include "simulation2d/line.h"
 #include "simulation2d/circle.h"
 #include "simulation2d/robot.h"
-#include<immintrin.h>
+
 
 #include<vector>
 #include<iostream>
@@ -61,6 +61,7 @@ private:
      * AVX PART
      ***/
 #ifdef USE_AVX
+    #include <immintrin.h>
 
     void avx_calculate_line_distance_from_point(const float x, const float y);
     void avx_calculate_circle_distance_from_point(const float x, const float y);
