@@ -3,7 +3,7 @@ project(simulation2d)
 
 add_compile_options(-std=c++11)
 
-option(WITH_AVX "use avx" ON)
+option(WITH_AVX "use avx" OFF)
 
 if (WITH_AVX)
   add_compile_options(-mavx)
