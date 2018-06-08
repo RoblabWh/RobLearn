@@ -1,3 +1,6 @@
+ACTION_SIZE = 5
+
+
 def map_action(action):
     if action == 0:
         angular = 1
