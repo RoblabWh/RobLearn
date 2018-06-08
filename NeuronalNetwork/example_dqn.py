@@ -83,8 +83,8 @@ def convert_action(action):
         angular = -0.77
         linear = 0.75
 
-
     return linear, angular
+
 
 if __name__ == "__main__":
     env = Environment()
@@ -101,23 +101,21 @@ if __name__ == "__main__":
 
     for e in range(EPISODES):
 
-        reward_sum = 0;
+        reward_sum = 0
 
-        env.set_start(-9.5,-9.5,1.57079632679)
-        env.set_target(9,9)
+        env.set_start(-9.5, -9.5, 1.57079632679)
+        env.set_target(9, 9)
 
-        state, _, _, _ = env.step(0.0, 0.0,1)
+        state, _, _, _ = env.step(0.0, 0.0, 1)
 
-	
         state = np.reshape(state, [1, state_size])
-
 
         for time in range(500):
             action = agent.act(state)
 
             linear, angular = convert_action(action)
 
-            next_state, reward, done, _ = env.step(linear, angular,10)
+            next_state, reward, done, _ = env.step(linear, angular, 10)
 
             next_state = np.reshape(next_state, [1, state_size])
 
@@ -125,13 +123,12 @@ if __name__ == "__main__":
 
             agent.remember(state, action, reward_sum, next_state, done)
             state = next_state
-            
 
             env.visualize()
 
             if done:
                 print("episode: {}/{}, score: {}, e: {:.2} time:{}"
-                      .format(e, EPISODES, reward_sum, agent.epsilon,time))
+                      .format(e, EPISODES, reward_sum, agent.epsilon, time))
                 break
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
