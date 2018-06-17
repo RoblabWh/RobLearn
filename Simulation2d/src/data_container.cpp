@@ -10,6 +10,13 @@ DataContainer::DataContainer()
     this->avx_circle_size = 0;
 }
 
+void DataContainer::set_world(const std::vector<Line> &lines, const std::vector<Circle> &circles)
+{
+    this->set_lines(lines);
+    this->set_circles(circles);
+    this->set_area();
+}
+
 void DataContainer::set_lines(const std::vector<Line> &lines)
 {
     this->avx_line_size = calculate_avx_size(lines.size());
@@ -26,6 +33,31 @@ void DataContainer::set_lines(const std::vector<Line> &lines)
         line_distance.push_back(0);
     }
 }
+
+void DataContainer::set_area()
+{
+    this->area_min_x = std::numeric_limits<float>::max();
+    this->area_min_y = std::numeric_limits<float>::max();
+    this->area_max_x = -std::numeric_limits<float>::max();
+    this->area_max_y = -std::numeric_limits<float>::max();
+
+    for (int i = 0; i < line_distance.size(); ++i) {
+        this->area_min_x = std::min(area_min_x, std::min(line_x1[i], line_x2[i]));
+        this->area_min_y = std::min(area_min_y, std::min(line_y1[i], line_y2[i]));
+
+        this->area_max_x = std::max(area_max_x, std::max(line_x1[i], line_x2[i]));
+        this->area_max_y = std::max(area_max_y, std::max(line_y1[i], line_y2[i]));
+    }
+
+    for (int i = 0; i < circle_distance.size(); ++i) {
+        this->area_min_x = std::min(area_min_x, circle_x[i]);
+        this->area_min_y = std::min(area_min_y, circle_y[i]);
+
+        this->area_max_x = std::max(area_max_x, circle_x[i]);
+        this->area_max_y = std::max(area_max_y, circle_y[i]);
+    }
+}
+
 
 void DataContainer::set_circles(const std::vector<Circle> &circles)
 {
@@ -131,6 +163,12 @@ bool DataContainer::calculate_robot_collision(Robot &robot)
         }
     }
 
+
+    // check if robot is out of area
+    if (robot.get_position_x() <= this->area_min_x || this->area_max_x <= robot.get_position_x() || robot.get_position_y() <= this->area_min_y || this->area_max_y <= robot.get_position_y()) {
+        return true;
+    }
+
     return false;
 }
 
@@ -178,10 +216,10 @@ void DataContainer::calculate_lidar_collision(Robot &robot)
     lidar.apply_bias();
 }
 
+
 /**************************************************************************************
  * AVX PART
  **************************************************************************************/
-
 #ifdef USE_AVX
 void DataContainer::avx_calculate_line_distance_from_point(const float x,const  float y)
 {

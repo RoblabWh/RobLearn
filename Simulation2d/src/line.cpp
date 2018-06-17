@@ -65,3 +65,8 @@ void Line::set_point2(float x, float y)
 {
     this->point2(x,y);
 }
+
+std::ostream& operator<<(std::ostream &os, const Line& l)
+{
+    return os << "Line(x1=" << l.get_point1_x() << ", y1=" << l.get_point1_y() << ", x2=" << l.get_point2_x() << ", y2=" << l.get_point2_y() << ")";
+}

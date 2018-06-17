@@ -1,7 +1,8 @@
-
 #include "simulation2d/simulation2d.h"
 
 #include <chrono>
+#include <fstream>
+#include <boost/tokenizer.hpp>
 
 
 
@@ -54,6 +55,7 @@ void Simulation2D::calculate_iteration()
 
 bool Simulation2D::init(std::string world)
 {
+    bool success = true;
     collision = false;
     calculate_iteration();
 
@@ -61,6 +63,12 @@ bool Simulation2D::init(std::string world)
     {
         load_default_world();
     }
+    else
+    {
+        success = load_world(world);
+    }
+
+    return success;
 }
 
 
@@ -174,8 +182,87 @@ void Simulation2D::load_default_world()
     circles.push_back(Circle(7,3.6,0.15));
     circles.push_back(Circle(3.7,2.7,0.3));
 
-    // set variable
-    data.set_lines(lines);
-    data.set_circles(circles);
+    data.set_world(lines, circles);
 }
 
+bool Simulation2D::load_world(const std::string &world)
+{
+    std::cout << "-> Load world: " << world << std::endl;
+
+    std::vector<Line> lines;
+    std::vector<Circle> circles;
+
+    std::ifstream file;
+
+    file.open(world);
+
+    if (!file.is_open()) {
+        std::cerr << "Couldn not read file: " << world << std::endl;
+        return false;
+    }
+
+    std::string line;
+
+    int line_counter = 0;
+
+    while(std::getline(file, line))
+    {
+        line_counter++;
+
+        std::vector<std::string> line_split;
+
+        for (int i = 0; i < line.size(); ++i) {
+            int begin = i;
+
+            while(line[i] != ' ' && i < line.size()) i++;
+
+            std::string substring(line.substr(begin, i - begin));
+
+            if (!substring.empty()) {
+                line_split.push_back(substring);
+            }
+        }
+
+        // continue if line is empty
+        if(line_split.empty())
+            continue;
+
+        // continue if line starts with # -> ignore comment line
+        if (line_split[0][0] == '#')
+            continue;
+
+        // parse circle with 3 index
+        if (line_split.size() == 3) {
+            try {
+                float x = std::stof(line_split[0]);
+                float y = std::stof(line_split[1]);
+                float r = std::stof(line_split[2]);
+
+                circles.push_back(Circle(x,y,r));
+            } catch (...) {
+                std::cerr << "   ERROR: parsing float values for circle! [Line: " << line_counter << "]" << std::endl;
+            }
+        }
+        // parse line with 4 index
+        else if (line_split.size() == 4) {
+            try {
+                float x1 = std::stof(line_split[0]);
+                float y1 = std::stof(line_split[1]);
+                float x2 = std::stof(line_split[2]);
+                float y2 = std::stof(line_split[3]);
+                lines.push_back(Line(x1,y1,x2,y2));
+            } catch (...) {
+                std::cerr << "   ERROR: parsing float values for line! [Line: " << line_counter << "]" << std::endl;
+            }
+        }
+        //
+        else
+        {
+            std::cerr << "   WARN: unknwon split size of " << line_split.size() << "! [Line: " << line_counter << "]";
+        }
+    }
+
+    data.set_world(lines, circles);
+
+    return true;
+}

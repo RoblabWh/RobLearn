@@ -1,6 +1,8 @@
 #pragma once
 
 #include <eigen3/Eigen/Core>
+#include <iostream>
+
 
 class Circle
 {
@@ -20,4 +22,7 @@ public:
     float get_x() const;
     float get_y() const;
     float get_radius() const;
+
+    friend std::ostream& operator<<(std::ostream &os, const Circle& c);
 };
+

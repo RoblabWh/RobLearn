@@ -28,10 +28,20 @@ private:
     std::vector<float> circle_radius;
     std::vector<float> circle_distance;
 
+    float area_min_x;
+    float area_min_y;
+    float area_max_x;
+    float area_max_y;
+
     void line_clear();
     void line_reserve(int size);
     void circle_clear();
     void circle_reserve(int size);
+
+    void set_lines(const std::vector<Line> &lines);
+    void set_circles(const std::vector<Circle> & circles);
+    void set_area();
+
     int calculate_avx_size(int size);
 
     void calculate_line_distance_from_point(const float x, const float y);
@@ -39,6 +49,9 @@ private:
     void calculate_circle_distance_from_point(const float x,const  float y);
 
     void calculate_laser_collision(const Robot &robot);
+
+
+
 
     /***
      * Inline
@@ -119,8 +132,8 @@ private:
 public:
     DataContainer();
 
-    void set_lines(const std::vector<Line> &lines);
-    void set_circles(const std::vector<Circle> & circles);
+    void set_world(const std::vector<Line> &lines, const std::vector<Circle> & circles);
+
     bool calculate_robot_collision(Robot & robot);
     void calculate_lidar_collision(Robot &robot);
 
@@ -191,4 +204,21 @@ public:
     {
         return circle_y[index];
     }
+    inline float get_area_min_x() const
+    {
+        return area_min_x;
+    }
+    inline float get_area_max_x() const
+    {
+        return area_max_x;
+    }
+    inline float get_area_min_y() const
+    {
+        return area_min_y;
+    }
+    inline float get_area_max_y() const
+    {
+        return area_max_y;
+    }
+
 };

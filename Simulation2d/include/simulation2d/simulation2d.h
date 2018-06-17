@@ -21,6 +21,7 @@ private:
 
     void calculate_iteration();
     void load_default_world();
+    bool load_world(const std::string &world);
 
 public:
     Simulation2D();

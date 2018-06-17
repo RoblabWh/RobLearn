@@ -8,11 +8,6 @@
 class Visualization_Gnuplot
 {
 private:
-    float min_x;
-    float max_x;
-    float min_y;
-    float max_y;
-
     bool is_initialized;
 
     FILE *pipe;

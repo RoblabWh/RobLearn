@@ -1,5 +1,6 @@
 #include "simulation2d/visualization_gnuplot.h"
 #include <stdio.h>
+#include <limits>
 
 Visualization_Gnuplot::Visualization_Gnuplot()
 {
@@ -17,21 +18,7 @@ void Visualization_Gnuplot::init(const DataContainer &data)
 {
     pipe = popen("/usr/bin/gnuplot -geometry 800x800 -persist", "w");
 
-    for (int i = 0; i < data.get_line_size(); ++i) {
-        this->min_x = std::min(min_x, std::min(data.get_line_x1_at(i), data.get_line_x2_at(i)));
-        this->min_y = std::min(min_y, std::min(data.get_line_y1_at(i), data.get_line_y2_at(i)));
 
-        this->max_x = std::max(max_x, std::max(data.get_line_x1_at(i), data.get_line_x2_at(i)));
-        this->max_y = std::max(max_y, std::max(data.get_line_y1_at(i), data.get_line_y2_at(i)));
-    }
-
-    for (int i = 0; i < data.get_circle_size(); ++i) {
-        this->min_x = std::min(min_x, data.get_circle_x_at(i));
-        this->min_y = std::min(min_y, data.get_circle_y_at(i));
-
-        this->max_x = std::max(max_x, data.get_circle_x_at(i));
-        this->max_y = std::max(max_x, data.get_circle_y_at(i));
-    }
 
     is_initialized = true;
 }
@@ -47,9 +34,8 @@ void Visualization_Gnuplot::visualize(const Robot &robot, const DataContainer &d
         return;
     }
 
-    fprintf(pipe, "set xrange [%f:%f]\n",(min_x - 1),(max_x + 1));
-    fprintf(pipe, "set yrange [%f:%f]\n",(min_y - 1),(max_y + 1));
-
+    fprintf(pipe, "set xrange [%f:%f]\n",(data.get_area_min_x() - 1),(data.get_area_max_x() + 1));
+    fprintf(pipe, "set yrange [%f:%f]\n",(data.get_area_min_y() - 1),(data.get_area_max_y() + 1));
 
     fprintf(pipe, "plot ");
     if (data.get_line_size() != 0)

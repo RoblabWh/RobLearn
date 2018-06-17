@@ -1,6 +1,7 @@
 #pragma once
 
 #include <eigen3/Eigen/Core>
+#include <iostream>
 
 class Line
 {
@@ -24,4 +25,6 @@ public:
     float get_point1_y() const;
     float get_point2_x() const;
     float get_point2_y() const;
+
+    friend std::ostream& operator<<(std::ostream &os, const Line& l);
 };
