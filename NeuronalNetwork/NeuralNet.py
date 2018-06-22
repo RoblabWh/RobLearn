@@ -8,15 +8,14 @@ from tflearn import Evaluator, DNN
 import action_mapper
 from environment import Environment
 
-MAX_EPISODES = 100000
+MAX_EPISODES = 1
 gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 
 final_epsilon = 0.01
 
-visualize = False
-
+visualize = True
 
 
 class NeuralNet(object):
@@ -35,6 +34,8 @@ class NeuralNet(object):
         self.reset_target_net = \
             [self.target_network_params[i].assign(self.network_params[i]) for i in range(len(self.target_network_params))]
 
+        self.saver = tf.train.Saver(max_to_keep=10)
+
     def _graph_update(self):
         self.updater_a = tf.placeholder('float', [None, self.action_size])
         self.updater_y = tf.placeholder('float', [None])
@@ -50,10 +51,10 @@ class NeuralNet(object):
         input = tf.expand_dims(input, -1)
         print(input.shape)
         net = input
-        # net = tflearn.layers.conv_1d(net, 16, 3, padding='same')
-        # net = tflearn.layers.max_pool_1d(net, 3)
-        # net = tflearn.layers.conv_1d(net, 16, 2)
-        # net = tflearn.layers.max_pool_1d(net, 2)
+        net = tflearn.layers.conv_1d(net, 16, 3, padding='same')
+        net = tflearn.layers.max_pool_1d(net, 3)
+        net = tflearn.layers.conv_1d(net, 16, 2)
+        net = tflearn.layers.max_pool_1d(net, 2)
         net = tflearn.layers.fully_connected(net, 64, activation='relu')
         net = tflearn.layers.fully_connected(net, self.action_size, activation='relu')
         return input, net
@@ -117,8 +118,9 @@ class NeuralNet(object):
                 session.run(self.update, feed_dict={self.updater_y: [reward],
                                                     self.updater_a: [a_t],
                                                     self.input: state})
-
+                #self.saver.save(session, "test.chkp")
                 if term:
+
                     break
 
                 state = next_state
