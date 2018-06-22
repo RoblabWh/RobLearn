@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from pysim2d import pysim2d
-from environment_fitness import FitnessData
+from .environment_fitness import FitnessData
 
 PATH_TO_WORLD = "../Simulation2d/world/"
 

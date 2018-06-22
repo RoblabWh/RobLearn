@@ -4,7 +4,7 @@ import math
 import random
 import enum
 
-from environment_node import Node
+from .environment_node import Node
 
 
 class Mode(enum.Enum):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import math
-from environment_node_data import NodeData, Mode
+from .environment_node_data import NodeData, Mode
 
 
 class FitnessData:
