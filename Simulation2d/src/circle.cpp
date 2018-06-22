@@ -49,3 +49,8 @@ float Circle::get_radius() const
 {
     return this->radius;
 }
+
+std::ostream& operator<<(std::ostream &os, const Circle& c)
+{
+    return os << "Circle(x=" << c.get_x() << ", y=" << c.get_y() << ", r=" << c.get_radius() << ")";
+}
