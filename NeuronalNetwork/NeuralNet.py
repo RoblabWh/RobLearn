@@ -6,16 +6,17 @@ import tflearn
 from tflearn import Evaluator, DNN
 
 import action_mapper
-from environment import Environment
+from environment.environment import Environment
 
-MAX_EPISODES = 1
+MAX_EPISODES = 100000
+target_update_goal = 5000
 gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 
-final_epsilon = 0.01
+final_epsilon = 0.02
 
-visualize = True
+visualize = False
 
 
 class NeuralNet(object):
@@ -41,32 +42,31 @@ class NeuralNet(object):
         self.updater_y = tf.placeholder('float', [None])
         action_q_values = tf.reduce_sum(tf.multiply(self.model, self.updater_a), reduction_indices=1)
         cost = tflearn.mean_square(action_q_values, self.updater_y)
-        optimizer = tf.train.RMSPropOptimizer(0.001)
+        # optimizer = tf.train.RMSPropOptimizer(0.001)
+        optimizer = tf.train.AdamOptimizer(0.001)
         grad_update = optimizer.minimize(cost, var_list=self.network_params)
         return grad_update
 
     def _build_graph(self):
         input = tflearn.layers.input_data(shape=(None, self.state_size), dtype=tf.float32)
-        print(input.shape)
         input = tf.expand_dims(input, -1)
-        print(input.shape)
         net = input
         net = tflearn.layers.conv_1d(net, 16, 3, padding='same')
         net = tflearn.layers.max_pool_1d(net, 3)
         net = tflearn.layers.conv_1d(net, 16, 2)
         net = tflearn.layers.max_pool_1d(net, 2)
         net = tflearn.layers.fully_connected(net, 64, activation='relu')
-        net = tflearn.layers.fully_connected(net, self.action_size, activation='relu')
+        net = tflearn.layers.fully_connected(net, self.action_size, activation='linear')
+        # net = tflearn.layers.fully_connected(net, 16, activation='relu')
+        # net = tflearn.layers.fully_connected(net, 8, activation='relu')
+        # net = tflearn.layers.fully_connected(net, 5, activation='linear')
         return input, net
-
-    # def step(self, obs):
-    #     ev = Evaluator(self.model)
-    #     ev.evaluate()
 
     def train(self, session, env):
         session.run(tf.initialize_all_variables())
 
         num_episode = 0
+        global_step = 0
 
         initial_epsilon = 1.0
         epsilon = initial_epsilon
@@ -74,7 +74,7 @@ class NeuralNet(object):
         while num_episode <= MAX_EPISODES:
             reset_env(env)
             state, _, _, _ = env.step(0, 0)
-            state = np.reshape(state, [1, 54, 1])
+            state = np.reshape(state, [1, self.state_size, 1]) # @TODO Auslagern
 
             num_episode += 1
 
@@ -97,8 +97,8 @@ class NeuralNet(object):
                 #print("Choosing Action {}".format(action_index))
 
                 x1, x2 = action_mapper.map_action(action_index)
-                next_state, reward, term, info = env.step(x1, x2)
-                next_state = np.reshape(next_state, [1, 54, 1])
+                next_state, reward, term, info = env.step(x1, x2, 10)
+                next_state = np.reshape(next_state, [1, self.state_size, 1])
                 episode_reward += reward
 
                 if visualize:
@@ -109,24 +109,30 @@ class NeuralNet(object):
                 next_q_values = self.target_model.eval(session=session, feed_dict={self.target_input: next_state})
 
                 if not term:
-                    reward = reward + gamma * np.argmax(next_q_values)
+                    reward = reward + gamma * np.amax(next_q_values)
 
-                if num_episode % 1000 == 0:
+                if global_step % target_update_goal == 0:
                     session.run(self.reset_target_net)
                     print("Target Net Resetted")
 
+                weights_old = session.run(self.network_params) ## DEBUG
                 session.run(self.update, feed_dict={self.updater_y: [reward],
                                                     self.updater_a: [a_t],
                                                     self.input: state})
+
+                weights_after = session.run(self.network_params) ## DEBUG
                 #self.saver.save(session, "test.chkp")
-                if term:
 
-                    break
-
+                global_step += 1
                 state = next_state
                 episode_step += 1
 
-            print("Episode {} Terminated. Rewardsum: {}".format(num_episode, episode_reward))
+                if term:
+                    # weights = session.run(self.network_params) ## DEBUG
+                    break
+
+
+            print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(num_episode, episode_reward, global_step))
 
 # def train():
 #     env = Environment()
@@ -140,14 +146,14 @@ class NeuralNet(object):
 
 
 def reset_env(env):
-    env.set_start(-9.5, -9.5, 1.57079632679)
-    env.set_target(9, 9)
+    # Method maybe obsolete?
+    env.reset()
 
 
 if __name__ == '__main__':
 
-    env = Environment()
-    env.set_cluster_size(20)
+    env = Environment('test')
+    env.set_cluster_size(36)
 
     net = NeuralNet(state_size=env.observation_size(), action_size=action_mapper.ACTION_SIZE)
 
