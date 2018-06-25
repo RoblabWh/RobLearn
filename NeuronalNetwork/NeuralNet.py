@@ -9,14 +9,14 @@ import action_mapper
 from environment.environment import Environment
 
 MAX_EPISODES = 100000
-target_update_goal = 5000
+target_update_timestepsl = 2000
 gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 
 final_epsilon = 0.02
 
-visualize = False
+visualize = True
 
 
 class NeuralNet(object):
@@ -111,7 +111,7 @@ class NeuralNet(object):
                 if not term:
                     reward = reward + gamma * np.amax(next_q_values)
 
-                if global_step % target_update_goal == 0:
+                if global_step % target_update_timestepsl == 0:
                     session.run(self.reset_target_net)
                     print("Target Net Resetted")
 
