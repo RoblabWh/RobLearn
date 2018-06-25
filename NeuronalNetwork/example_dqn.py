@@ -91,7 +91,7 @@ def convert_action(action):
 
 
 if __name__ == "__main__":
-    env = Environment("test2")
+    env = Environment("test")
     
     #env.set_cluster_size(10)
 
