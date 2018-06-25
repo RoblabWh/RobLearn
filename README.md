@@ -27,5 +27,5 @@ Abhängikeiten
 - gnuplot-x11 (Visualierung)
 
 Probleme:
-- Manchmal klappt die Gnuplot-Visualierung
+- Manchmal klappt die Gnuplot-Visualierung nicht.
 
