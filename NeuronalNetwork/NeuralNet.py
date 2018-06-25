@@ -9,6 +9,7 @@ import action_mapper
 from environment.environment import Environment
 
 MAX_EPISODES = 100000
+LOG_PATH = 'log/'
 target_update_timestepsl = 2000
 gamma = 0.99
 # Number of timesteps to anneal epsilon
@@ -21,9 +22,11 @@ visualize = True
 
 class NeuralNet(object):
 
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, writer):
         self.state_size = state_size
         self.action_size = action_size
+        self.writer = writer
+
         self.input, self.model = self._build_graph()
         self.network_params = tf.trainable_variables()
 
@@ -155,7 +158,10 @@ if __name__ == '__main__':
     env = Environment('test')
     env.set_cluster_size(36)
 
-    net = NeuralNet(state_size=env.observation_size(), action_size=action_mapper.ACTION_SIZE)
+    writer = tf.summary.FileWriter(LOG_PATH)
+
+    net = NeuralNet(state_size=env.observation_size(), action_size=action_mapper.ACTION_SIZE, writer=writer)
 
     with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=4)) as sess:
+        writer.add_graph(sess.graph)
         net.train(sess, env)

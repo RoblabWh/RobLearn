@@ -104,3 +104,6 @@ pip-selfcheck.json
 
 
 pysim2d/
+
+# Tensorboard logfiles
+log/
