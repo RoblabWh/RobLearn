@@ -9,8 +9,10 @@ import action_mapper
 from environment.environment import Environment
 
 MAX_EPISODES = 100000
-LOG_PATH = 'log/'
-target_update_timestepsl = 2000
+LOG_PATH = './log/'
+CHECKPOINT_PATH = './save/N-Step-CNN.ckpt'
+CHECKPOINT_PERIOD_TIMESTEPS = 10000
+target_update_timestep = 2000
 gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
@@ -38,7 +40,7 @@ class NeuralNet(object):
         self.reset_target_net = \
             [self.target_network_params[i].assign(self.network_params[i]) for i in range(len(self.target_network_params))]
 
-        self.saver = tf.train.Saver(max_to_keep=10)
+        self.saver = tf.train.Saver(max_to_keep=10, )
 
     def _graph_update(self):
         self.updater_a = tf.placeholder('float', [None, self.action_size])
@@ -114,7 +116,7 @@ class NeuralNet(object):
                 if not term:
                     reward = reward + gamma * np.amax(next_q_values)
 
-                if global_step % target_update_timestepsl == 0:
+                if global_step % target_update_timestep == 0:
                     session.run(self.reset_target_net)
                     print("Target Net Resetted")
 
@@ -124,7 +126,9 @@ class NeuralNet(object):
                                                     self.input: state})
 
                 weights_after = session.run(self.network_params) ## DEBUG
-                #self.saver.save(session, "test.chkp")
+
+                if global_step % CHECKPOINT_PERIOD_TIMESTEPS == 0:
+                    self.saver.save(session, CHECKPOINT_PATH, global_step=global_step)
 
                 global_step += 1
                 state = next_state
