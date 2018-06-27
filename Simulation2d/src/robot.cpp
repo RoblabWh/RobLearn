@@ -4,7 +4,7 @@ Robot::Robot()
 {
     this->pose.setIdentity();
 
-    this->collision_radius = 0.165f;
+    this->collision_radius = 0.175f;
 
     this->max_velocity = 3.0f;
 }
