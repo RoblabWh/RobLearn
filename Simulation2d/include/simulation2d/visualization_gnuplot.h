@@ -10,9 +10,12 @@ class Visualization_Gnuplot
 private:
     bool is_initialized;
 
+    std::string world;
+
     FILE *pipe;
 
     void init(const DataContainer &data);
+    void construct_world(const DataContainer &data);
 
 public:
     Visualization_Gnuplot();

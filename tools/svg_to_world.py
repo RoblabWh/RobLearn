@@ -59,7 +59,7 @@ def get_node(title):
                 is_start = True
             elif value == ['e'] or value == ['E']:
                 is_end = True
-            else:
+            elif not value == ['']:
                 print("Unknown node in circle -> ignore this circle", value)
                 successful = False
         elif len(value) == 2:
