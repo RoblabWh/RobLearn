@@ -100,9 +100,9 @@ gazebo::math::Pose InputProcessing::get_pose(ConstLaserScanStampedPtr laserscan)
     pose.pos.z = laserscan->scan().world_pose().position().z();
 
     pose.rot.x = laserscan->scan().world_pose().orientation().x();
-    pose.rot.x = laserscan->scan().world_pose().orientation().y();
-    pose.rot.x = laserscan->scan().world_pose().orientation().z();
-    pose.rot.x = laserscan->scan().world_pose().orientation().w();
+    pose.rot.y = laserscan->scan().world_pose().orientation().y();
+    pose.rot.z = laserscan->scan().world_pose().orientation().z();
+    pose.rot.w = laserscan->scan().world_pose().orientation().w();
 
     return pose;
 }
