@@ -1,3 +1,4 @@
+import time
 from random import random, randrange
 
 import numpy as np
@@ -7,6 +8,14 @@ from tflearn import Evaluator, DNN
 
 import action_mapper
 from environment.environment import Environment
+
+flags = tf.flags
+
+flags.DEFINE_boolean('evaluate', False, 'If true, run the rob evaluation instead of training.')
+flags.DEFINE_string('checkpoint_path', '', 'Path to the checkpoint to evaluate.')
+flags.DEFINE_integer('evaluation_episodes', 50, '')
+flags.DEFINE_float('sleep', 0.1, 'Sleep in seconds between steps in evaluation.')
+FLAGS = flags.FLAGS
 
 MAX_EPISODES = 100000
 LOG_PATH = './log/'
@@ -48,7 +57,7 @@ class NeuralNet(object):
         action_q_values = tf.reduce_sum(tf.multiply(self.model, self.updater_a), reduction_indices=1)
         cost = tflearn.mean_square(action_q_values, self.updater_y)
         # optimizer = tf.train.RMSPropOptimizer(0.001)
-        optimizer = tf.train.AdamOptimizer(0.001)
+        optimizer = tf.train.AdamOptimizer(0.002)
         grad_update = optimizer.minimize(cost, var_list=self.network_params)
         return grad_update
 
@@ -62,9 +71,9 @@ class NeuralNet(object):
         net = tflearn.layers.max_pool_1d(net, 2)
         net = tflearn.layers.fully_connected(net, 64, activation='relu')
         net = tflearn.layers.fully_connected(net, self.action_size, activation='linear')
-        # net = tflearn.layers.fully_connected(net, 16, activation='relu')
-        # net = tflearn.layers.fully_connected(net, 8, activation='relu')
-        # net = tflearn.layers.fully_connected(net, 5, activation='linear')
+        # net = tflearn.layers.fully_connected(net, 512, activation='relu')
+        # net = tflearn.layers.fully_connected(net, 256, activation='relu')
+        # net = tflearn.layers.fully_connected(net, self.action_size, activation='linear')
         return input, net
 
     def train(self, session, env):
@@ -138,8 +147,39 @@ class NeuralNet(object):
                     # weights = session.run(self.network_params) ## DEBUG
                     break
 
-
             print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(num_episode, episode_reward, global_step))
+
+    def evaluate(self, session, env):
+        self.saver.restore(session, FLAGS.checkpoint_path)
+        print('Loaded Model from ', FLAGS.checkpoint_path)
+
+        num_episode = 0
+        while num_episode < FLAGS.evaluation_episodes:
+            reset_env(env)
+            state, _, terminal, _ = env.step(0, 0)
+            state = np.reshape(state, [1, self.state_size, 1]) # @TODO Auslagern
+            env.visualize()
+            episode_reward = 0
+
+            while not terminal:
+                q_values = self.model.eval(session=session, feed_dict={self.input: state})
+
+                action = np.argmax(q_values)
+
+                x1, x2 = action_mapper.map_action(action)
+                next_state, reward, terminal, info = env.step(x1, x2, 10)
+                next_state = np.reshape(next_state, [1, self.state_size, 1])
+                env.visualize()
+
+                episode_reward += reward
+
+                state = next_state
+
+                time.sleep(FLAGS.sleep)
+
+            num_episode += 1
+            print('Testing Episode finished. Reward: {}'.format(episode_reward))
+
 
 # def train():
 #     env = Environment()
@@ -168,4 +208,8 @@ if __name__ == '__main__':
 
     with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=4)) as sess:
         writer.add_graph(sess.graph)
-        net.train(sess, env)
+
+        if FLAGS.evaluate:
+            net.evaluate(sess, env)
+        else:
+            net.train(sess, env)
