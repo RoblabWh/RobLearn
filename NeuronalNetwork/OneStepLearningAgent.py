@@ -31,7 +31,7 @@ final_epsilon = 0.02
 visualize = True
 
 
-class NeuralNet(object):
+class OneStepLearningAgent(object):
 
     def __init__(self, state_size, action_size, writer):
         self.state_size = state_size
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 
     writer = tf.summary.FileWriter(LOG_PATH)
 
-    net = NeuralNet(state_size=env.observation_size(), action_size=action_mapper.ACTION_SIZE, writer=writer)
+    net = OneStepLearningAgent(state_size=env.observation_size(), action_size=action_mapper.ACTION_SIZE, writer=writer)
 
     with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=4)) as sess:
         writer.add_graph(sess.graph)
