@@ -8,11 +8,13 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 
 from environment.environment import Environment
+from environment.environment_node_data import Mode
 
 EPISODES = 10000
 
 
 class DQNAgent:
+
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
@@ -91,11 +93,12 @@ def convert_action(action):
 
 
 if __name__ == "__main__":
-    env = Environment("test")
-    
+    env1 = Environment("diff_forms")
+    env2 = Environment("test")
+    env1.set_mode(Mode.PAIR_ALL)
     #env.set_cluster_size(10)
 
-    state_size = env.observation_size()
+    state_size = env1.observation_size()
     action_size = 5
     agent = DQNAgent(state_size, action_size)
     # agent.load("./save/cartpole-dqn.h5")
@@ -105,6 +108,11 @@ if __name__ == "__main__":
     print("START DQN")
 
     for e in range(EPISODES):
+
+        if e % 9 == 0:
+            env = env2
+        else:
+            env = env1
 
         reward_sum = 0
 
