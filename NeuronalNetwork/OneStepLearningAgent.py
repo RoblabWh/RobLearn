@@ -27,7 +27,7 @@ gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 CLUSTER_SIZE = 36
-WORKER_THREADS = 2
+WORKER_THREADS = 1
 
 INITIAL_EPSILON = 1.0
 final_epsilon = 0.02
@@ -242,9 +242,6 @@ class WorkerAgent(threading.Thread):
             state, _, _, _ = env.step(0, 0)
             state = self.reshape_state(state)
 
-            local_episodes += 1
-            global_episode += 1
-
             episode_step = 0
             episode_reward = 0
             while True:
@@ -306,7 +303,10 @@ class WorkerAgent(threading.Thread):
                     # weights = session.run(self.network_params) ## DEBUG
                     break
 
-            print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(global_episode, episode_reward, global_step))
+            local_episodes += 1
+            global_episode += 1
+
+            print("Episode {} in Thread {} Terminated. Rewardsum: {}, Globalstep: {}".format(global_episode, self.name, episode_reward, global_step))
 
     def reshape_state(self, state):
         return np.reshape(state, [1, self.state_size, 1])
