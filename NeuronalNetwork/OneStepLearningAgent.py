@@ -306,7 +306,8 @@ class WorkerAgent(threading.Thread):
                     # weights = session.run(self.network_params) ## DEBUG
                     break
 
-            print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(global_episode, episode_reward, global_step))
+            if global_episode % 100 == 0:
+                print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(global_episode, episode_reward, global_step))
 
     def reshape_state(self, state):
         return np.reshape(state, [1, self.state_size, 1])
