@@ -27,19 +27,19 @@ gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 CLUSTER_SIZE = 36
-WORKER_THREADS = 4
+WORKER_THREADS = 2
 
 INITIAL_EPSILON = 1.0
 final_epsilon = 0.02
 
-visualize = False
+visualize = True
 
 
 class OneStepLearningAgent(object):
 
-    def __init__(self, state_size, action_size, writer):
-        self.state_size = state_size
-        self.action_size = action_size
+    def __init__(self, world_name, writer):
+        self.world_name = world_name
+        self.action_mapper = action_mapper # @TODO Variabel machen
         self.writer = writer
 
         self.input, self.model = self._build_graph()
@@ -56,17 +56,19 @@ class OneStepLearningAgent(object):
         self.saver = tf.train.Saver(max_to_keep=10, )
 
     def _graph_update(self):
-        self.updater_a = tf.placeholder('float', [None, self.action_size])
+        self.updater_a = tf.placeholder('float', [None, self.action_mapper.ACTION_SIZE])
         self.updater_y = tf.placeholder('float', [None])
         action_q_values = tf.reduce_sum(tf.multiply(self.model, self.updater_a), reduction_indices=1)
         cost = tflearn.mean_square(action_q_values, self.updater_y)
         # optimizer = tf.train.RMSPropOptimizer(0.001)
-        optimizer = tf.train.AdamOptimizer(0.002) # @TODO Learning rate
+        optimizer = tf.train.AdamOptimizer(0.002)  # @TODO Learning rate
         grad_update = optimizer.minimize(cost, var_list=self.network_params)
         return grad_update
 
     def _build_graph(self):
-        input = tflearn.layers.input_data(shape=(None, self.state_size), dtype=tf.float32)
+        env = Environment(self.world_name)  # @TODO Vernünftig machen
+        env.set_cluster_size(CLUSTER_SIZE)
+        input = tflearn.layers.input_data(shape=(None, env.observation_size()), dtype=tf.float32)
         input = tf.expand_dims(input, -1)
         net = input
         net = tflearn.layers.conv_1d(net, 16, 3, padding='same')
@@ -74,13 +76,13 @@ class OneStepLearningAgent(object):
         net = tflearn.layers.conv_1d(net, 16, 2)
         net = tflearn.layers.max_pool_1d(net, 2)
         net = tflearn.layers.fully_connected(net, 64, activation='relu')
-        net = tflearn.layers.fully_connected(net, self.action_size, activation='linear')
+        net = tflearn.layers.fully_connected(net, self.action_mapper.ACTION_SIZE, activation='linear')
         # net = tflearn.layers.fully_connected(net, 512, activation='relu')
         # net = tflearn.layers.fully_connected(net, 256, activation='relu')
         # net = tflearn.layers.fully_connected(net, self.action_size, activation='linear')
         return input, net
 
-    def train(self, session, env):
+    def train(self, session):
         session.run(tf.initialize_all_variables())
 
         global_episode = 0
@@ -109,7 +111,7 @@ class OneStepLearningAgent(object):
             'y': self.updater_y
         }
 
-        agents = [WorkerAgent(i, graph_ops, update_ops, None, session, self.saver) for i in range(0, WORKER_THREADS)]
+        agents = [WorkerAgent(i, graph_ops, update_ops, self.world_name, session, self.saver) for i in range(0, WORKER_THREADS)]
 
         for agent in agents:
             agent.start()
@@ -189,7 +191,7 @@ class OneStepLearningAgent(object):
         while num_episode < FLAGS.evaluation_episodes:
             reset_env(env)
             state, _, terminal, _ = env.step(0, 0)
-            state = np.reshape(state, [1, self.state_size, 1]) # @TODO Auslagern
+            state = np.reshape(state, [1, self.world_name, 1]) # @TODO Auslagern
             env.visualize()
             episode_reward = 0
 
@@ -200,7 +202,7 @@ class OneStepLearningAgent(object):
 
                 x1, x2 = action_mapper.map_action(action)
                 next_state, reward, terminal, info = env.step(x1, x2, 10)
-                next_state = np.reshape(next_state, [1, self.state_size, 1])
+                next_state = np.reshape(next_state, [1, self.world_name, 1])
                 env.visualize()
 
                 episode_reward += reward
@@ -214,7 +216,7 @@ class OneStepLearningAgent(object):
 
 
 class WorkerAgent(threading.Thread):
-    def __init__(self, name, graph_ops, update_ops, env, session, saver):
+    def __init__(self, name, graph_ops, update_ops, world_name, session, saver):
         super().__init__()
 
         self.name = name
@@ -225,7 +227,7 @@ class WorkerAgent(threading.Thread):
         self.graph_ops = graph_ops
         self.update_ops = update_ops
 
-        self.env = Environment('test')
+        self.env = Environment(world_name)
         self.env.set_cluster_size(CLUSTER_SIZE)
         self.state_size = self.env.observation_size()
         self.action_size = action_mapper.ACTION_SIZE
@@ -238,8 +240,8 @@ class WorkerAgent(threading.Thread):
         epsilon = INITIAL_EPSILON
 
         while global_episode <= MAX_EPISODES:
-            reset_env(env)
-            state, _, _, _ = env.step(0, 0)
+            reset_env(self.env)
+            state, _, _, _ = self.env.step(0, 0)
             state = self.reshape_state(state)
 
             episode_step = 0
@@ -264,12 +266,12 @@ class WorkerAgent(threading.Thread):
                 #print("Choosing Action {}".format(action_index))
 
                 x1, x2 = action_mapper.map_action(action_index)
-                next_state, reward, term, info = env.step(x1, x2, 10)
+                next_state, reward, term, info = self.env.step(x1, x2, 10)
                 next_state = np.reshape(next_state, [1, self.state_size, 1])
                 episode_reward += reward
 
                 if visualize:
-                    env.visualize()
+                    self.env.visualize()
 
                 #print("Reward: {} \n\n".format(reward))
 
@@ -328,17 +330,14 @@ def reset_env(env):
 
 if __name__ == '__main__':
 
-    env = Environment('test')
-    env.set_cluster_size(36)
-
     writer = tf.summary.FileWriter(LOG_PATH)
 
-    net = OneStepLearningAgent(state_size=env.observation_size(), action_size=action_mapper.ACTION_SIZE, writer=writer)
+    net = OneStepLearningAgent(world_name='test', writer=writer)
 
     with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=4)) as sess:
         writer.add_graph(sess.graph)
 
         if FLAGS.evaluate:
-            net.evaluate(sess, env)
+            net.evaluate(sess)
         else:
-            net.train(sess, env)
+            net.train(sess)
