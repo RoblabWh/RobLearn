@@ -32,7 +32,7 @@ WORKER_THREADS = 2
 INITIAL_EPSILON = 1.0
 final_epsilon = 0.02
 
-visualize = True
+visualize = False
 
 
 class OneStepLearningAgent(object):
@@ -304,6 +304,9 @@ class WorkerAgent(threading.Thread):
                 if term:
                     # weights = session.run(self.network_params) ## DEBUG
                     break
+
+            local_episodes += 1
+            global_episode += 1
 
             if global_episode % 100 == 0:
                 print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(global_episode, episode_reward, global_step))
