@@ -27,7 +27,7 @@ gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 CLUSTER_SIZE = 36
-WORKER_THREADS = 2
+WORKER_THREADS = 4
 
 INITIAL_EPSILON = 1.0
 final_epsilon = 0.02
@@ -241,9 +241,6 @@ class WorkerAgent(threading.Thread):
             reset_env(env)
             state, _, _, _ = env.step(0, 0)
             state = self.reshape_state(state)
-
-            local_episodes += 1
-            global_episode += 1
 
             episode_step = 0
             episode_reward = 0
