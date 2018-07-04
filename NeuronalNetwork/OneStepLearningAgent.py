@@ -27,7 +27,7 @@ gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 CLUSTER_SIZE = 36
-WORKER_THREADS = 1
+WORKER_THREADS = 4
 
 INITIAL_EPSILON = 1.0
 final_epsilon = 0.02
