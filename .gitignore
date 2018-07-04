@@ -104,3 +104,9 @@ pip-selfcheck.json
 
 
 pysim2d/
+
+# Tensorboard logfiles
+log/
+
+# Agents checkpoints
+save/
