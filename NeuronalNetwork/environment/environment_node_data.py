@@ -3,6 +3,7 @@
 import math
 import random
 import enum
+from datetime import datetime
 
 from .environment_node import Node
 
@@ -10,21 +11,27 @@ from .environment_node import Node
 class Mode(enum.Enum):
     ALL_COMBINATION = 0
     ALL_RANDOM = 1
-    CHECKPOINT = 2
+    PAIR_ALL = 2
+    PAIR_RANDOM = 3
+    CHECKPOINT = 4
 
 
 class NodeData:
 
-    __data = []
-    __indices_start = []
-    __indices_end = []
-    __indices_checkpoint = []
-    __current_start = None
-    __current_start_index = 0
-    __current_end = None
-    __current_end_index = 0
+    def __init__(self):
+        self._data = []
+        self._indices_start = []
+        self._indices_end = []
+        self._indices_pair_start = []
+        self._indices_pair_end = []
+        self._indices_checkpoint = []
+        self._current_start = None
+        self._current_start_index = 0
+        self._current_end = None
+        self._current_end_index = 0
+        self._current_pair_index = 0
 
-    __mode = Mode.ALL_COMBINATION
+    _mode = Mode.ALL_COMBINATION
 
     def read_node_file(self, filename="") -> bool:
         file = open(filename, 'r')
@@ -47,20 +54,20 @@ class NodeData:
                         print("Warn: Negative id in node -> set id to 0.")
                         number = 0
 
-                    self.__data.append(Node(x, y, r, is_start, is_end, number, angle_start, angle_end))
+                    self._data.append(Node(x, y, r, is_start, is_end, number, angle_start, angle_end))
                 else:
                     print("Warn: Invalid argument length in line -> ignore node", len(line))
 
         # Fill indices
         node_dictionary = dict()
 
-        for i in range(len(self.__data)):
-            node = self.__data[i]
+        for i in range(len(self._data)):
+            node = self._data[i]
 
             if node.is_start():
-                self.__indices_start.append(i)
+                self._indices_start.append(i)
             if node.is_end():
-                self.__indices_end.append(i)
+                self._indices_end.append(i)
 
             if node.id() in node_dictionary:
                 node_list = node_dictionary[node.id()]
@@ -71,124 +78,187 @@ class NodeData:
 
         # Fill the dictionary_node into indicies checkpoint
         for id, node_list in sorted(node_dictionary.items()):
-            self.__indices_checkpoint.append(node_list)
+            self._indices_checkpoint.append(node_list)
+
+            node_list_start = []
+            node_list_end = []
+
+            # Fill the pair list with start and end node indices
+            for index in node_list:
+                node = self._data[index]
+
+                if node.is_start():
+                    node_list_start.append(index)
+
+                if node.is_end():
+                    node_list_end.append(index)
+
+            # Check if there are enough start and end node
+            check_pair = True
+
+            if len(node_list_start) == 0:
+                print("Warn: No start node in pair -> skip", id)
+                check_pair = False
+
+            if len(node_list_end) == 0:
+                print("Warn: No end node in pair -> skip", id)
+                check_pair = False
+
+            if len(node_list_start) == 1 and len(node_list_end) == 1 and node_list_start[0] == node_list_end[0]:
+                print("Warn: Only one node which is start and end node in pair -> skip!", id)
+                check_pair = False
+
+            if check_pair:
+                self._indices_pair_start.append(node_list_start)
+                self._indices_pair_end.append(node_list_end)
 
         # Check if there are enough start and end node
         check_successful = True
 
-        if len(self.__indices_start) == 0:
+        if len(self._indices_start) == 0:
             print("Error: No start node!")
             check_successful = False
 
-        if len(self.__indices_end) == 0:
+        if len(self._indices_end) == 0:
             print("Error: No end node!")
             check_successful = False
 
-        if len(self.__indices_start) == 1 and len(self.__indices_end) == 1 and self.__indices_start[0] == self.__indices_end[0]:
+        if len(self._indices_start) == 1 and len(self._indices_end) == 1 and self._indices_start[0] == self._indices_end[0]:
             print("Error: Only one node which is start and end node!")
             check_successful = False
 
         # Set the index to len of the list that it begin with node 1 by start
-        self.__current_start_index = len(self.__indices_start)
-        self.__current_end_index = len(self.__indices_end)
+        self._current_start_index = len(self._indices_start)
+        self._current_end_index = len(self._indices_end)
 
-        tmp = self.__data[self.__indices_start[0]]
+        tmp = self._data[self._indices_start[0]]
 
         print(tmp.x(), tmp.y())
 
         return check_successful
 
     def set_mode(self, mode: Mode):
-        self.__mode = mode
+        random.seed(datetime.now())
+        self._mode = mode
 
-    def __select_start_next(self):
-        self.__current_start_index += 1
+    def _select_start_next(self, indices_start):
+        self._current_start_index += 1
 
-        if not self.__current_start_index < len(self.__indices_start):
-            self.__current_start_index = 0
+        if not self._current_start_index < len(indices_start):
+            self._current_start_index = 0
 
-        self.__current_start = self.__data[self.__indices_start[self.__current_start_index]]
+        self._current_start = self._data[indices_start[self._current_start_index]]
 
-    def __select_end_next(self):
-        self.__current_end_index += 1
+    def _select_end_next(self, indices_end):
+        self._current_end_index += 1
 
-        if not self.__current_end_index < len(self.__indices_end):
-            self.__current_end_index = 0
+        if not self._current_end_index < len(indices_end):
+            self._current_end_index = 0
 
-        self.__current_end = self.__data[self.__indices_end[self.__current_end_index]]
+        self._current_end = self._data[indices_end[self._current_end_index]]
 
-    def __select_start_random(self):
-        if len(self.__indices_start) < 2:
-            self.__current_start = self.__indices_start[0]
+    def _select_start_random(self, indices_start):
+        if len(indices_start) < 2:
+            self._current_start = indices_start[0]
         else:
-            selected_start_index = self.__current_start_index
+            selected_start_index = self._current_start_index
 
-            while selected_start_index == self.__current_start_index:
-                selected_start_index = random.randint(0, len(self.__indices_start))
+            while selected_start_index == self._current_start_index:
+                selected_start_index = random.randint(0, len(indices_start) - 1)
 
-            self.__current_start_index = selected_start_index
-            self.__current_start = self.__data[self.__indices_start[self.__current_start_index]]
+            self._current_start_index = selected_start_index
+            self._current_start = self._data[indices_start[self._current_start_index]]
 
-    def __select_end_random(self):
-        if len(self.__indices_end) < 2:
-            self.__current_end = self.__indices_end[0]
+    def _select_end_random(self, indices_end):
+        if len(indices_end) < 2:
+            self._current_end = indices_end[0]
         else:
-            selected_end_index = self.__current_end_index
+            selected_end_index = self._current_end_index
 
-            while selected_end_index == self.__current_end_index:
-                selected_end_index = random.randint(0, len(self.__indices_end))
+            while selected_end_index == self._current_end_index:
+                selected_end_index = random.randint(0, len(indices_end) - 1)
 
-            self.__current_end_index = selected_end_index
-            self.__current_end = self.__data[self.__indices_end[self.__current_end_index]]
+            self._current_end_index = selected_end_index
+            self._current_end = self._data[indices_end[self._current_end_index]]
 
-    def __solve_conflict_start_end_next(self):
-        if self.__current_start.id() == self.__current_end.id():
-            if len(self.__indices_end) < 2:
-                self.__select_start_next()
-            elif len(self.__indices_start) < 2:
-                self.__select_end_next()
+    def _solve_conflict_start_end_next(self, indices_start, indices_end):
+        if indices_start[self._current_start_index] == indices_end[self._current_end_index]:
+            if len(indices_end) < 2:
+                self._select_start_next(indices_start)
+            elif len(indices_start) < 2:
+                self._select_end_next(indices_end)
             else:
-                self.__select_start_next()
+                self._select_start_next(indices_start)
 
-    def __solve_conflict_start_end_random(self):
-        if self.__current_start.id() == self.__current_end.id():
-            if len(self.__indices_end) < 2:
-                self.__select_start_random()
-            elif len(self.__indices_start) < 2:
-                self.__select_end_random()
+    def _solve_conflict_start_end_random(self, indices_start, indices_end):
+        if self._indices_start[self._current_start_index] == self._indices_end[self._current_end_index]:
+            if len(indices_end) < 2:
+                self._select_start_random(indices_start)
+            elif len(indices_start) < 2:
+                self._select_end_random(indices_end)
             else:
-                self.__select_start_random()
+                self._select_start_random(indices_start)
+
+    def _select_pair_next(self):
+        self._current_pair_index += 1
+
+        if not self._current_pair_index < len(self._indices_pair_start):
+            self._current_pair_index = 0
+
+        self._select_start_random(self._indices_pair_start[self._current_pair_index])
+        self._select_end_random(self._indices_pair_end[self._current_pair_index])
+        self._solve_conflict_start_end_random(self._indices_pair_start[self._current_pair_index], self._indices_pair_end[self._current_pair_index])
+
+    def _select_pair_random(self):
+        if len(self._indices_pair_start) < 2:
+            self._current_pair_index = 0
+        else:
+            selected_pair_index = self._current_pair_index
+
+            while selected_pair_index == self._current_pair_index:
+                selected_pair_index = random.randint(0, len(self._indices_pair_start) - 1)
+
+            self._current_pair_index = selected_pair_index
+
+        self._select_start_random(self._indices_pair_start[self._current_pair_index])
+        self._select_end_random(self._indices_pair_end[self._current_pair_index])
+        self._solve_conflict_start_end_random(self._indices_pair_start[self._current_pair_index], self._indices_pair_end[self._current_pair_index])
 
     def new_node_selection(self):
-        if self.__mode == Mode.ALL_COMBINATION:
-            self.__select_start_next()
-            self.__select_end_next()
-            self.__solve_conflict_start_end_next()
-        elif self.__mode == Mode.ALL_RANDOM:
-            self.__select_start_random()
-            self.__select_end_random()
-            self.__solve_conflict_start_end_random()
+        if self._mode == Mode.ALL_COMBINATION:
+            self._select_start_next(self._indices_start)
+            self._select_end_next(self._indices_end)
+            self._solve_conflict_start_end_next(self._indices_start, self._indices_end)
+        elif self._mode == Mode.ALL_RANDOM:
+            self._select_start_random(self._indices_start)
+            self._select_end_random(self._indices_pair_end)
+            self._solve_conflict_start_end_random(self._indices_start, self._indices_end)
+        elif self._mode == Mode.PAIR_ALL:
+            self._select_pair_next()
+        elif self._mode == Mode.PAIR_RANDOM:
+            self._select_pair_random()
 
     def generate_robot_start_position(self):
-        radius = random.uniform(0, self.__current_start.radius())
+        radius = random.uniform(0, self._current_start.radius())
         angle = random.uniform(-math.pi, math.pi)
 
-        # Minus the radius of the robot + 0.05 cm for safety
-        radius -= 0.30
+        # Minus the radius of the robot + 2.5 cm for safety
+        radius -= 0.20
         if radius < 0:
             radius = 0
 
-        x = radius * math.cos(angle) + self.__current_start.x()
-        y = radius * math.sin(angle) + self.__current_start.y()
+        x = radius * math.cos(angle) + self._current_start.x()
+        y = radius * math.sin(angle) + self._current_start.y()
 
         # orientation bias 10 degree
         orientation_bias = math.radians(5)
-        orientation = random.uniform(self.__current_start.angle_start() - orientation_bias, self.__current_start.angle_end() + orientation_bias)
+        orientation = random.uniform(self._current_start.angle_start() - orientation_bias, self._current_start.angle_end() + orientation_bias)
 
         return x, y, orientation
 
     def get_node_start(self) -> Node:
-        return self.__current_start
+        return self._current_start
 
     def get_node_end(self) -> Node:
-        return self.__current_end
+        random.seed(datetime.now())
+        return self._current_end

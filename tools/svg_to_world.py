@@ -109,7 +109,7 @@ def check_node(data_node):
     if counter_start + counter_start_end < 1 or counter_end + counter_start_end < 1:
         print("Error: Need at least one start and end point!")
         return False
-    if counter_start < 1 and counter_end < 1:
+    if counter_start_end < 2:
         print("Error; Only one start_end point")
         return False
     return True
