@@ -26,8 +26,9 @@ target_update_timestep = 2000
 gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
+PRINT_EVERY = 100
 CLUSTER_SIZE = 36
-WORKER_THREADS = 2
+WORKER_THREADS = 1
 
 INITIAL_EPSILON = 1.0
 final_epsilon = 0.02
@@ -53,7 +54,7 @@ class OneStepLearningAgent(object):
         self.reset_target_net = \
             [self.target_network_params[i].assign(self.network_params[i]) for i in range(len(self.target_network_params))]
 
-        self.saver = tf.train.Saver(max_to_keep=10, )
+        self.saver = tf.train.Saver(max_to_keep=10)
 
     def _graph_update(self):
         self.updater_a = tf.placeholder('float', [None, self.action_mapper.ACTION_SIZE])
@@ -237,6 +238,7 @@ class WorkerAgent(threading.Thread):
         print('Thread {} started.'.format(self.name))
 
         local_episodes = 0
+        accumulated_reward = 0
         epsilon = INITIAL_EPSILON
 
         while global_episode <= MAX_EPISODES:
@@ -305,11 +307,15 @@ class WorkerAgent(threading.Thread):
                     # weights = session.run(self.network_params) ## DEBUG
                     break
 
+            accumulated_reward += episode_reward
+
             local_episodes += 1
             global_episode += 1
 
-            if global_episode % 100 == 0:
-                print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(global_episode, episode_reward, global_step))
+            if global_episode % PRINT_EVERY == 0:
+                #writer.add_summary(tf.summary.scalar('AVG Reward', accumulated_reward / PRINT_EVERY))
+                print("Total Episodes {0:}. Reward AVG: {1:.3f}, Globalstep: {2:6d}, Epsilon: {3:f}".format(global_episode, accumulated_reward / PRINT_EVERY, global_step, epsilon))
+                accumulated_reward = 0
 
     def reshape_state(self, state):
         return np.reshape(state, [1, self.state_size, 1])
