@@ -239,6 +239,7 @@ class WorkerAgent(threading.Thread):
 
         local_episodes = 0
         accumulated_reward = 0
+        best_reward = 0
         epsilon = INITIAL_EPSILON
 
         while global_episode <= MAX_EPISODES:
@@ -308,14 +309,16 @@ class WorkerAgent(threading.Thread):
                     break
 
             accumulated_reward += episode_reward
+            best_reward = episode_reward if (episode_reward > best_reward) else best_reward
 
             local_episodes += 1
             global_episode += 1
 
             if global_episode % PRINT_EVERY == 0:
                 #writer.add_summary(tf.summary.scalar('AVG Reward', accumulated_reward / PRINT_EVERY))
-                print("Total Episodes {0:}. Reward AVG: {1:.3f}, Globalstep: {2:6d}, Epsilon: {3:f}".format(global_episode, accumulated_reward / PRINT_EVERY, global_step, epsilon))
+                print("Total Episodes {0:}. Reward AVG: {1:.3f}, Best Reward: {4:.3f}, Globalstep: {2:6d}, Epsilon: {3:f}".format(global_episode, accumulated_reward / PRINT_EVERY, global_step, epsilon, best_reward))
                 accumulated_reward = 0
+                best_reward = -99999
 
     def reshape_state(self, state):
         return np.reshape(state, [1, self.state_size, 1])
