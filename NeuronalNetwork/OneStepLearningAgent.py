@@ -314,9 +314,10 @@ class WorkerAgent(threading.Thread):
             local_episodes += 1
             global_episode += 1
 
-            if global_episode % PRINT_EVERY == 0:
+            if local_episodes % PRINT_EVERY == 0:
                 #writer.add_summary(tf.summary.scalar('AVG Reward', accumulated_reward / PRINT_EVERY))
-                print("Total Episodes {0:}. Reward AVG: {1:.3f}, Best Reward: {4:.3f}, Globalstep: {2:6d}, Epsilon: {3:f}".format(global_episode, accumulated_reward / PRINT_EVERY, global_step, epsilon, best_reward))
+                print("Thread {0:}. Total Episodes {1:}. Reward AVG: {2:.3f}, Best Reward: {3:.3f}, Globalstep: {4:6d}, Epsilon: {5:f}"
+                      .format(self.name, global_episode, accumulated_reward / PRINT_EVERY, best_reward, global_step, epsilon))
                 accumulated_reward = 0
                 best_reward = -99999
 
@@ -343,7 +344,7 @@ def reset_env(env):
 if __name__ == '__main__':
 
     writer = tf.summary.FileWriter(LOG_PATH)
-
+    start_time = time.time()
     net = OneStepLearningAgent(world_name='test', writer=writer)
 
     with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=4)) as sess:
@@ -353,3 +354,5 @@ if __name__ == '__main__':
             net.evaluate(sess)
         else:
             net.train(sess)
+    end_time = time.time()
+    print('TIME ELAPSED: ', end_time-start_time)
