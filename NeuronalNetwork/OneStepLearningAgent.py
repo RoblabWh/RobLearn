@@ -26,11 +26,11 @@ CHECKPOINT_PERIOD_TIMESTEPS = 10000
 target_update_timestep = 2000
 gamma = 0.99
 # Number of timesteps to anneal epsilon
-anneal_epsilon_timesteps = 400000
+anneal_epsilon_timesteps = 100000
 PRINT_EVERY = 100
 UPDATE_PERIOD = 5
 CLUSTER_SIZE = 36
-WORKER_THREADS = 1
+WORKER_THREADS = 4
 
 INITIAL_EPSILON = 1.0
 final_epsilon = 0.02
@@ -248,6 +248,8 @@ class WorkerAgent(threading.Thread):
         reward_batch = []
         action_batch = []
 
+        period_start_time = time.time()
+
         while global_episode <= MAX_EPISODES:
             reset_env(self.env)
             state, _, _, _ = self.env.step(0, 0)
@@ -255,7 +257,6 @@ class WorkerAgent(threading.Thread):
 
             episode_step = 0
             episode_reward = 0
-
 
             while True:
                 q_output = self.graph_ops['network']['q_values'].eval(
@@ -302,7 +303,7 @@ class WorkerAgent(threading.Thread):
                     self.session.run(self.update_ops['reset_target_network'])
                     print("Target Net Resetted")
 
-                start = time.time()
+                # start = time.time()
                 if episode_step % UPDATE_PERIOD == 0 or term:
                     self.session.run(self.update_ops['minimize'], feed_dict={self.update_ops['y']: reward_batch,
                                                     self.update_ops['a']: action_batch,
@@ -312,8 +313,8 @@ class WorkerAgent(threading.Thread):
                     action_batch = []
                     reward_batch = []
 
-                end = time.time()
-                print('Time for updating: ', end - start)
+                # end = time.time()
+                # print('Time for updating: ', end - start)
 
 
                 if global_step % CHECKPOINT_PERIOD_TIMESTEPS == 0:
@@ -334,11 +335,13 @@ class WorkerAgent(threading.Thread):
             global_episode += 1
 
             if local_episodes % PRINT_EVERY == 0:
+                period_end_time = time.time()
                 #writer.add_summary(tf.summary.scalar('AVG Reward', accumulated_reward / PRINT_EVERY))
-                print("Thread {0:}. Total Episodes {1:}. Reward AVG: {2:.3f}, Best Reward: {3:.3f}, Globalstep: {4:6d}, Epsilon: {5:f}"
-                      .format(self.name, global_episode, accumulated_reward / PRINT_EVERY, best_reward, global_step, epsilon))
+                print("Thread {0:}. Total Episodes {1:}. Reward AVG: {2:.3f}, Best Reward: {3:.3f}, Globalstep: {4:6d}, Epsilon: {5:f}, Time: {6:}"
+                      .format(self.name, global_episode, accumulated_reward / PRINT_EVERY, best_reward, global_step, epsilon, period_end_time - period_start_time))
                 accumulated_reward = 0
                 best_reward = -99999
+                period_start_time = time.time()
 
     def reshape_state(self, state):
         return np.reshape(state, [self.state_size, 1])
