@@ -1,6 +1,7 @@
 import threading
 import time
 from random import random, randrange
+from timeit import timeit
 
 import numpy as np
 import tensorflow as tf
@@ -27,6 +28,7 @@ gamma = 0.99
 # Number of timesteps to anneal epsilon
 anneal_epsilon_timesteps = 400000
 PRINT_EVERY = 100
+UPDATE_PERIOD = 5
 CLUSTER_SIZE = 36
 WORKER_THREADS = 1
 
@@ -242,6 +244,10 @@ class WorkerAgent(threading.Thread):
         best_reward = 0
         epsilon = INITIAL_EPSILON
 
+        state_batch = []
+        reward_batch = []
+        action_batch = []
+
         while global_episode <= MAX_EPISODES:
             reset_env(self.env)
             state, _, _, _ = self.env.step(0, 0)
@@ -249,10 +255,12 @@ class WorkerAgent(threading.Thread):
 
             episode_step = 0
             episode_reward = 0
+
+
             while True:
                 q_output = self.graph_ops['network']['q_values'].eval(
                     session=self.session,
-                    feed_dict={self.graph_ops['network']['input']: state}
+                    feed_dict={self.graph_ops['network']['input']: [state]}
                 )
 
                 if random() <= epsilon:
@@ -270,7 +278,7 @@ class WorkerAgent(threading.Thread):
 
                 x1, x2 = action_mapper.map_action(action_index)
                 next_state, reward, term, info = self.env.step(x1, x2, 10)
-                next_state = np.reshape(next_state, [1, self.state_size, 1])
+                next_state = self.reshape_state(next_state)
                 episode_reward += reward
 
                 if visualize:
@@ -280,22 +288,33 @@ class WorkerAgent(threading.Thread):
 
                 next_q_values = self.graph_ops['target_network']['q_values'].eval(
                     session=self.session,
-                    feed_dict={self.graph_ops['target_network']['input']: next_state}
+                    feed_dict={self.graph_ops['target_network']['input']: [next_state]}
                 )
 
                 if not term:
                     reward = reward + gamma * np.amax(next_q_values)
 
+                state_batch.append(state)
+                action_batch.append(a_t)
+                reward_batch.append(reward)
+
                 if global_step % target_update_timestep == 0:
                     self.session.run(self.update_ops['reset_target_network'])
                     print("Target Net Resetted")
 
-                #weights_old = session.run(self.network_params) ## DEBUG
-                self.session.run(self.update_ops['minimize'], feed_dict={self.update_ops['y']: [reward],
-                                                    self.update_ops['a']: [a_t],
-                                                    self.graph_ops['network']['input']: state})
+                start = time.time()
+                if episode_step % UPDATE_PERIOD == 0 or term:
+                    self.session.run(self.update_ops['minimize'], feed_dict={self.update_ops['y']: reward_batch,
+                                                    self.update_ops['a']: action_batch,
+                                                    self.graph_ops['network']['input']: state_batch})
 
-                #weights_after = session.run(self.network_params) ## DEBUG
+                    state_batch = []
+                    action_batch = []
+                    reward_batch = []
+
+                end = time.time()
+                print('Time for updating: ', end - start)
+
 
                 if global_step % CHECKPOINT_PERIOD_TIMESTEPS == 0:
                     self.saver.save(self.session, CHECKPOINT_PATH, global_step=global_step)
@@ -322,7 +341,7 @@ class WorkerAgent(threading.Thread):
                 best_reward = -99999
 
     def reshape_state(self, state):
-        return np.reshape(state, [1, self.state_size, 1])
+        return np.reshape(state, [self.state_size, 1])
 
 
 # def train():
