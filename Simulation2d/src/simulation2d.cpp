@@ -84,9 +84,9 @@ void Simulation2D::set_robot_pose(const float x, const float y, const float orie
     collision = false;
 }
 
-void Simulation2D::visualize()
+void Simulation2D::visualize(const float end_x, const float end_y, const float end_radius)
 {
-    visualization.visualize(robot, data);
+    visualization.visualize(robot, data, Circle(end_x, end_y, end_radius));
 }
 
 void Simulation2D::load_default_world()

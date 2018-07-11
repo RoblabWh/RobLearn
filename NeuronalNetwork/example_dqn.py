@@ -4,7 +4,8 @@ import numpy as np
 import time
 from collections import deque
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, TimeDistributed
+from keras.layers import SimpleRNN
 from keras.optimizers import Adam
 
 from environment.environment import Environment
@@ -33,8 +34,9 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(512, input_dim=self.state_size, activation='relu'))
+        model.add(Dense(1024, input_dim=self.state_size, activation='relu'))
         model.add(Dense(256, activation='relu'))
+        model.add(Dense(128, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -93,12 +95,13 @@ def convert_action(action):
 
 
 if __name__ == "__main__":
-    env1 = Environment("diff_forms")
-    env2 = Environment("test")
-    env1.set_mode(Mode.PAIR_ALL)
+    env = Environment("room")
+    env.set_mode(Mode.PAIR_RANDOM, terminate_at_end=False)
+    env.use_observation_rotation_size(True)
     #env.set_cluster_size(10)
+    env.set_observation_rotation_size(128)
 
-    state_size = env1.observation_size()
+    state_size = env.observation_size()
     action_size = 5
     agent = DQNAgent(state_size, action_size)
     # agent.load("./save/cartpole-dqn.h5")
@@ -109,10 +112,7 @@ if __name__ == "__main__":
 
     for e in range(EPISODES):
 
-        if e % 9 == 0:
-            env = env2
-        else:
-            env = env1
+        visualize = (e % 5 == 0)
 
         reward_sum = 0
 
@@ -134,7 +134,8 @@ if __name__ == "__main__":
             agent.remember(state, action, reward, next_state, done)
             state = next_state
 
-            env.visualize()
+            if visualize:
+                env.visualize()
 
             if done:
                 print("episode: {}/{}, score: {}, e: {:.2} time:{}"

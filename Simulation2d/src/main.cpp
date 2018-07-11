@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
             simulation.step(0.0,0.0);
         }
         //std::cout << i << std::endl;
-        simulation.visualize();
+        simulation.visualize(0,0,1);
 
         //Eigen::Affine2f pose = simulation.get_robot_pose();
         //std::cout << pose.matrix() << std::endl;

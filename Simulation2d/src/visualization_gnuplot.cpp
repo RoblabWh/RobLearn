@@ -39,7 +39,7 @@ void Visualization_Gnuplot::construct_world(const DataContainer &data)
         ss << "'-' using 1:2:3 with circles lc 'blue', ";
     }
 
-    ss << "'-' using 1:2:3:4 with vectors nohead lc 'green', '-' using 1:2:3 with circles lc 'red', '-' using 1:2:3:4 with vectors lc 'red'\n";
+    ss << "'-' using 1:2:3:4 with vectors nohead lc 'green', '-' using 1:2:3 with circles lc 'red', '-' using 1:2:3:4 with vectors lc 'red', '-' using 1:2:3 with circles lc 'cyan' fill solid border\n";
 
     // create lines
     if (data.get_line_size() != 0) {
@@ -63,7 +63,7 @@ void Visualization_Gnuplot::construct_world(const DataContainer &data)
 
 }
 
-void Visualization_Gnuplot::visualize(const Robot &robot, const DataContainer &data)
+void Visualization_Gnuplot::visualize(const Robot &robot, const DataContainer &data, const Circle &end_node)
 {
     if (!is_initialized) {
         init(data);
@@ -98,36 +98,16 @@ void Visualization_Gnuplot::visualize(const Robot &robot, const DataContainer &d
 
     ss << "EOF\n";
 
+    // create end node
+    ss << end_node.get_x() << " " << end_node.get_y() << " " << end_node.get_radius() << "\n";
+
+    ss << "EOF\n";
+
+
     fprintf(pipe, "%s%s", world.c_str(), ss.str().c_str());
 
     fflush(pipe);
 
 
-    /**
 
-    for (int i = 0; i < KOEFFIZIENT_SIZE; ++i) {
-        fprintf(gnuplotPipe,"%f*x**%i+",population[0].koeffizient[i],i);
-    }
-
-    fprintf(gnuplotPipe,"0, '-' using 1:2 w p, '-' using 1:2 w l\n");
-
-
-
-    for (int i = 0; i < SAMPLE_SIZE; ++i) {
-        fprintf(gnuplotPipe, "%f %f \n", samples[i].x, samples[i].y_noise);
-    }
-    fprintf(gnuplotPipe, "EOF\n");
-
-    for (int i = 0; i < SAMPLE_SIZE; ++i) {
-        fprintf(gnuplotPipe, "%f %f \n", samples[i].x, samples[i].y);
-    }
-
-    fprintf(gnuplotPipe, "EOF\n");
-
-
-    fflush(gnuplotPipe);
-
-
-    usleep(1000000.0f/PLOT_SPEED_HZ);
-    */
 }
