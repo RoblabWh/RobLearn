@@ -40,8 +40,9 @@ visualize = False
 
 class OneStepLearningAgent(object):
 
-    def __init__(self, world_name, writer):
+    def __init__(self, world_name, use_target, writer):
         self.world_name = world_name
+        self.use_target = use_target
         self.action_mapper = action_mapper # @TODO Variabel machen
         self.writer = writer
 
@@ -71,6 +72,7 @@ class OneStepLearningAgent(object):
     def _build_graph(self):
         env = Environment(self.world_name)  # @TODO Vernünftig machen
         env.set_cluster_size(CLUSTER_SIZE)
+        env.use_observation_rotation_size(self.use_target)
         input = tflearn.layers.input_data(shape=(None, env.observation_size()), dtype=tf.float32)
         input = tf.expand_dims(input, -1)
         net = input
@@ -114,7 +116,7 @@ class OneStepLearningAgent(object):
             'y': self.updater_y
         }
 
-        agents = [WorkerAgent(i, graph_ops, update_ops, self.world_name, session, self.saver) for i in range(0, WORKER_THREADS)]
+        agents = [WorkerAgent(i, graph_ops, update_ops, self.world_name, self.use_target, session, self.saver) for i in range(0, WORKER_THREADS)]
 
         for agent in agents:
             agent.start()
@@ -219,7 +221,7 @@ class OneStepLearningAgent(object):
 
 
 class WorkerAgent(threading.Thread):
-    def __init__(self, name, graph_ops, update_ops, world_name, session, saver):
+    def __init__(self, name, graph_ops, update_ops, world_name, use_target, session, saver):
         super().__init__()
 
         self.name = name
@@ -231,6 +233,7 @@ class WorkerAgent(threading.Thread):
         self.update_ops = update_ops
 
         self.env = Environment(world_name)
+        self.env.use_observation_rotation_size(use_target)
         self.env.set_cluster_size(CLUSTER_SIZE)
         self.state_size = self.env.observation_size()
         self.action_size = action_mapper.ACTION_SIZE
@@ -367,7 +370,7 @@ if __name__ == '__main__':
 
     writer = tf.summary.FileWriter(LOG_PATH)
     start_time = time.time()
-    net = OneStepLearningAgent(world_name='test', writer=writer)
+    net = OneStepLearningAgent(world_name='room', use_target=False, writer=writer)
 
     with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=4)) as sess:
         writer.add_graph(sess.graph)
