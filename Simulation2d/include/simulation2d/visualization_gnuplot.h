@@ -20,5 +20,5 @@ private:
 public:
     Visualization_Gnuplot();
     ~Visualization_Gnuplot();
-    void visualize(const Robot &robot, const DataContainer &data);
+    void visualize(const Robot &robot, const DataContainer &data, const Circle &end_node);
 };

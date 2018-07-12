@@ -29,7 +29,7 @@ public:
     void step(const float linear_velocity, const float angular_velocity, int skip_number=1);
     Eigen::Affine2f get_robot_pose();
     void set_robot_pose(const float x, const float y, const float orientation);
-    void visualize();
+    void visualize(const float end_x, const float end_y, const float end_radius);
 
 
     inline int observation_size() const

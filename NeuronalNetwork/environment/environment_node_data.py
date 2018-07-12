@@ -141,6 +141,9 @@ class NodeData:
         random.seed(datetime.now())
         self._mode = mode
 
+    def get_mode(self):
+        return self._mode
+
     def _select_start_next(self, indices_start):
         self._current_start_index += 1
 
@@ -231,7 +234,7 @@ class NodeData:
             self._solve_conflict_start_end_next(self._indices_start, self._indices_end)
         elif self._mode == Mode.ALL_RANDOM:
             self._select_start_random(self._indices_start)
-            self._select_end_random(self._indices_pair_end)
+            self._select_end_random(self._indices_end)
             self._solve_conflict_start_end_random(self._indices_start, self._indices_end)
         elif self._mode == Mode.PAIR_ALL:
             self._select_pair_next()
@@ -262,3 +265,10 @@ class NodeData:
     def get_node_end(self) -> Node:
         random.seed(datetime.now())
         return self._current_end
+
+    def new_end_node(self):
+
+        if self._mode == Mode.PAIR_ALL or self._mode == Mode.PAIR_RANDOM:
+            self._select_end_random(self._indices_pair_end[self._current_pair_index])
+        else:
+            self._select_end_random(self._indices_end)
