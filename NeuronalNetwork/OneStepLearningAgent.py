@@ -1,12 +1,10 @@
 import threading
 import time
 from random import random, randrange
-from timeit import timeit
 
 import numpy as np
 import tensorflow as tf
 import tflearn
-from tflearn import Evaluator, DNN
 
 import action_mapper
 from environment.environment import Environment
@@ -124,77 +122,13 @@ class OneStepLearningAgent(object):
         for agent in agents:
             agent.join()
 
-        # while num_episode <= MAX_EPISODES:
-        #     reset_env(env)
-        #     state, _, _, _ = env.step(0, 0)
-        #     state = np.reshape(state, [1, self.state_size, 1]) # @TODO Auslagern
-        #
-        #     num_episode += 1
-        #
-        #     episode_step = 0
-        #     episode_reward = 0
-        #     while True:
-        #         q_values = self.model.eval(session=session, feed_dict={self.input: state})
-        #
-        #         if random() <= epsilon:
-        #             action_index = randrange(self.action_size)
-        #         else:
-        #             action_index = np.argmax(q_values)
-        #
-        #         a_t = np.zeros([self.action_size])
-        #         a_t[action_index] = 1
-        #
-        #         if epsilon > final_epsilon:
-        #             epsilon -= (initial_epsilon - final_epsilon) / anneal_epsilon_timesteps
-        #
-        #         #print("Choosing Action {}".format(action_index))
-        #
-        #         x1, x2 = action_mapper.map_action(action_index)
-        #         next_state, reward, term, info = env.step(x1, x2, 10)
-        #         next_state = np.reshape(next_state, [1, self.state_size, 1])
-        #         episode_reward += reward
-        #
-        #         if visualize:
-        #             env.visualize()
-        #
-        #         #print("Reward: {} \n\n".format(reward))
-        #
-        #         next_q_values = self.target_model.eval(session=session, feed_dict={self.target_input: next_state})
-        #
-        #         if not term:
-        #             reward = reward + gamma * np.amax(next_q_values)
-        #
-        #         if global_step % target_update_timestep == 0:
-        #             session.run(self.reset_target_net)
-        #             print("Target Net Resetted")
-        #
-        #         weights_old = session.run(self.network_params) ## DEBUG
-        #         session.run(self.update, feed_dict={self.updater_y: [reward],
-        #                                             self.updater_a: [a_t],
-        #                                             self.input: state})
-        #
-        #         weights_after = session.run(self.network_params) ## DEBUG
-        #
-        #         if global_step % CHECKPOINT_PERIOD_TIMESTEPS == 0:
-        #             self.saver.save(session, CHECKPOINT_PATH, global_step=global_step)
-        #
-        #         global_step += 1
-        #         state = next_state
-        #         episode_step += 1
-        #
-        #         if term:
-        #             # weights = session.run(self.network_params) ## DEBUG
-        #             break
-        #
-        #     print("Episode {} Terminated. Rewardsum: {}, Globalstep: {}".format(num_episode, episode_reward, global_step))
-
     def evaluate(self, session, env):
         self.saver.restore(session, FLAGS.checkpoint_path)
         print('Loaded Model from ', FLAGS.checkpoint_path)
 
         num_episode = 0
         while num_episode < FLAGS.evaluation_episodes:
-            reset_env(env)
+            env.reset()
             state, _, terminal, _ = env.step(0, 0)
             state = np.reshape(state, [1, self.world_name, 1]) # @TODO Auslagern
             env.visualize()
@@ -254,7 +188,7 @@ class WorkerAgent(threading.Thread):
         period_start_time = time.time()
 
         while global_episode <= MAX_EPISODES:
-            reset_env(self.env)
+            self.env.reset()
             state, _, _, _ = self.env.step(0, 0)
             state = self.reshape_state(state)
 
@@ -328,7 +262,6 @@ class WorkerAgent(threading.Thread):
                 episode_step += 1
 
                 if term:
-                    # weights = session.run(self.network_params) ## DEBUG
                     break
 
             accumulated_reward += episode_reward
@@ -348,22 +281,6 @@ class WorkerAgent(threading.Thread):
 
     def reshape_state(self, state):
         return np.reshape(state, [self.state_size, 1])
-
-
-# def train():
-#     env = Environment()
-#
-#     env.init()
-#     obs = env.step(0, 0)
-#     print(obs)
-#
-#     while True:
-#         env.step(0, -1)
-
-
-def reset_env(env):
-    # Method maybe obsolete?
-    env.reset()
 
 
 if __name__ == '__main__':
