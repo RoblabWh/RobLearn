@@ -11,7 +11,7 @@ const static int AVX_FLOAT_SIZE = 8;
 Lidar::Lidar()
 {
     this->hz = 40.0f;
-    this->angle_step = 0.00436332313;
+    this->angle_step = 0.00436332312998582394230922692122153178360717972135431364024297860042752278650862360920560392408627370553076123126;
     this->angle_min = -2.3561944902;
     this->angle_max = 2.3561944902;
     this->range_min = 0.06;
@@ -36,17 +36,15 @@ void Lidar::create_laser()
     this->laser_clear();
     this->laser_reserve(avx_laser_size);
 
-    float angle = angle_min;
 
     for (int i = 0; i < iteration; ++i) {
-        Eigen::Rotation2Df rot(angle);
-        Eigen::Vector2f vector = rot * Eigen::Vector2f(1,0);
+        double angle = static_cast<double>(this->angle_min) + static_cast<double>(this->angle_step) * static_cast<double>(i);
+        Eigen::Rotation2Dd rot(angle);
+        Eigen::Vector2d vector = rot * Eigen::Vector2d(1,0);
 
         laser_x.push_back(vector.x());
         laser_y.push_back(vector.y());
         laser_distance.push_back(0);
-
-        angle += angle_step;
     }
 }
 
@@ -222,7 +220,6 @@ void Lidar::apply_bias()
 
     for (int i = 0; i < laser_distance.size(); ++i) {
         laser_distance[i] += ((static_cast<float>(rand()) * div) * 2.0f - 1.0f) * this->bias;
-        laser_distance[i] = std::max(std::min(laser_distance[i], this->range_max), this->range_min);
     }
 }
 
