@@ -97,6 +97,7 @@ fabric.properties
 [Tt]cl
 pyvenv.cfg
 .venv
+.venv-gpu
 pip-selfcheck.json
 
 
