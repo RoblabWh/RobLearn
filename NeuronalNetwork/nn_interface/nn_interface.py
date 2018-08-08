@@ -6,6 +6,8 @@ import sys
 
 import time
 
+import random
+
 class NN_Interface:
     def __init__(self):
         self._is_initialised = False
@@ -19,7 +21,7 @@ class NN_Interface:
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def init(self):
-        self._socket.bind((self._ip_address_node, self._port_node))
+        self._socket.bind((self._ip_address_nn, self._port_nn))
 
         print("- - - NN_Interface - - -")
         print(" IP_ADDRESS: " + self._ip_address_nn)
@@ -38,7 +40,7 @@ class NN_Interface:
             self._ip_address_node = ip_address
             self._port_node = port
 
-    def set_address_node(self, ip_address="127.0.0.1", port=55556):
+    def set_address_nn(self, ip_address="127.0.0.1", port=55556):
         if self._is_initialised:
             print("Warn[NN_Interface::set_address_node]: NN_Interface is initialised -> ignore!")
         else:
@@ -54,7 +56,7 @@ class NN_Interface:
         s = struct.Struct("! f f")
         data = s.pack(*data_values)
 
-        self._socket.sendto(data, (self._ip_address_node, self._port_nn))
+        self._socket.sendto(data, (self._ip_address_node, self._port_node))
 
     def _read_header(self, header_data):
         s = struct.Struct("! H H H")
@@ -125,7 +127,7 @@ def main():
         # NN get action
 
         # Send the action to the robot
-        nn_interface.send_action(1, 0)
+        nn_interface.send_action(random.uniform(0.0, 0.5), random.uniform(-1, 1))
 
 
 
