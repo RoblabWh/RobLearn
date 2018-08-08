@@ -1,0 +1,29 @@
+<launch>
+	<include file="$(find kobuki_node)/launch/robot_with_tf.launch" />
+	<node name="laser_node" pkg="urg_node" type="urg_node" respawn="true">
+		<param name="ip_address" value="192.168.0.10" />
+	</node>
+
+	<group ns="camera">
+		<include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+			<arg name="depth_width"       value="480"/>
+			<arg name="depth_height"      value="270"/>
+			<arg name="depth_fps"         value="15"/>
+			<arg name="color_width"       value="424"/>
+			<arg name="color_height"      value="240"/>
+			<arg name="color_fps"         value="15"/>
+			<arg name="enable_depth"      value="true"/>
+			<arg name="enable_color"      value="true"/>
+			<arg name="enable_infra1"     value="false"/>
+			<arg name="enable_infra2"     value="false"/>
+			<arg name="enable_fisheye"    value="false"/>
+			<arg name="enable_imu"        value="false"/>
+			<arg name="enable_pointcloud" value="true"/>
+			<arg name="enable_sync"       value="true"/>
+		</include>
+	</group>
+
+	<node name="link_hokuyo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0.24  0 0 0 base_link laser" />
+	<node name="link_realsense" pkg="tf2_ros" type="static_transform_publisher"  args="-0.04 0 0.3  0 0 0 base_link camera_link" />
+
+</launch>

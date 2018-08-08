@@ -169,6 +169,7 @@ class NNInterfaceNode:
                     self._publish_twist(0.0, 0.0)
             else:
                 self._publish_twist(self._joy_linear, self._joy_angular)
+                rospy.sleep(0.01)
 
 
     def run(self):
@@ -185,10 +186,7 @@ class NNInterfaceNode:
 
 def main():
     nn_interface_node = NNInterfaceNode()
-    nn_interface_node.set_address_nn("172.16.35.152")
-    nn_interface_node.set_address_node("172.16.35.189")
     
-
     nn_interface_node.init()
     nn_interface_node.run()
 
