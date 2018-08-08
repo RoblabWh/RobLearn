@@ -1,5 +1,0 @@
-<launch	<node name="joy" pkg="joy" type="joy_node" respawn="true" args="autorepeat_rate=0.2" />
-	<node name="teleop_joy" pkg="roblearn_robot" type="teleop_joy.py" respawn="true" />
-
-	<include file="$(find roblearn_robot)/launch/start.launch" />
-</launch>
