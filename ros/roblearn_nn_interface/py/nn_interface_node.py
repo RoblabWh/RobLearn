@@ -26,14 +26,17 @@ class NNInterfaceNode:
         self._datagram_size_slice = 256 # * 4 byte size of the packet
 
         self._publisher_cmd_vel = None
+        self._laserscan_counter = 0
+        self._laserscan_counter_max = 20
 
         self._joy_linear = 0
         self._joy_angular = 0
 
 
+
     def init(self):
         # init socket
-        self._socket.bind((self._ip_address_nn, self._port_nn))
+        self._socket.bind((self._ip_address_node, self._port_node))
         self._socket.settimeout(1)
 
         # init ros
@@ -55,7 +58,7 @@ class NNInterfaceNode:
 
     def set_address_node(self, ip_address="127.0.0.1", port=55555):
         if self._is_initialised:
-            print("Warn[NN_Interface_Node::set_address_nn]: NN_Interface_Node is initialised -> ignore!")
+            print("Warn[NN_Interface_Node::set_address_node]: NN_Interface_Node is initialised -> ignore!")
         else:
             self._ip_address_node = ip_address
             self._port_node = port
@@ -70,20 +73,25 @@ class NNInterfaceNode:
 
 
     def _callback_laserscan(self, data):
-        range_max = 20.0
-        range_min = data.range_min
-        observation = []
+        if self._laserscan_counter < self._laserscan_counter_max:
+            self._laserscan_counter += 1
+        else:
+            range_max = 20.0
+            range_min = data.range_min
+            observation = []
 
-        for range in data.ranges:
-            if range < range_min:
-                range = 0.0
-            elif range_max < range:
-                range = 1.0
-            else:
-                range = range / range_max
-            observation.append(float(range))
+            for range in data.ranges:
+                if range < range_min:
+                    range = 0.0
+                elif range_max < range:
+                    range = 1.0
+                else:
+                    range = range / range_max
+                observation.append(float(range))
 
-        self._send_observation(observation)
+            self._send_observation(observation)
+
+            self._laserscan_counter = 0
 
     def _callback_joy(self, data):
         if data.buttons[1]:
@@ -131,7 +139,7 @@ class NNInterfaceNode:
 
             data = s.pack(*data_values)
 
-            self._socket.sendto(data, (self._ip_address_nn, self._port_node))
+            self._socket.sendto(data, (self._ip_address_nn, self._port_nn))
 
             index_slice += self._datagram_size_slice
 
@@ -177,6 +185,9 @@ class NNInterfaceNode:
 
 def main():
     nn_interface_node = NNInterfaceNode()
+    nn_interface_node.set_address_nn("172.16.35.152")
+    nn_interface_node.set_address_node("172.16.35.189")
+    
 
     nn_interface_node.init()
     nn_interface_node.run()

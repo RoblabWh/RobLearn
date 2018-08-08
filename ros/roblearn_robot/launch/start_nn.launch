@@ -1,0 +1,8 @@
+<launch>
+	<node name="joy" pkg="joy" type="joy_node" respawn="true">
+		<param name="autorepeat_rate" value="5" />
+	</node>
+	<node name="nn_interface_node" pkg="roblearn_nn_interface" type="nn_interface_node.py" respawn="true" />
+
+	<include file="$(find roblearn_robot)/launch/start.launch" />
+</launch>
