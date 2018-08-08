@@ -6,12 +6,13 @@ import sys
 
 import rospy
 from geometry_msgs.msg import Twist
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import LaserScan, Joy
 
 
 class NNInterfaceNode:
     def __init__(self):
         self._is_initialised = False
+        self._nn_control = False
 
         self._ip_address_node = "127.0.0.1"
         self._port_node = 55555
@@ -24,19 +25,22 @@ class NNInterfaceNode:
         self._datagram_index = 0
         self._datagram_size_slice = 256 # * 4 byte size of the packet
 
-        self._publisher = None
+        self._publisher_cmd_vel = None
 
+        self._joy_linear = 0
+        self._joy_angular = 0
 
 
     def init(self):
         # init socket
         self._socket.bind((self._ip_address_nn, self._port_nn))
-        self._socket.settimeout(0.5)
+        self._socket.settimeout(1)
 
         # init ros
         rospy.init_node("nn_interface_node")
-        self._publisher = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=1)
+        self._publisher_cmd_vel = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=1)
         rospy.Subscriber("/scan", LaserScan, self._callback_laserscan)
+        rospy.Subscriber("/joy", Joy, self._callback_joy)
 
         print("- - - NN_Interface_Node - - -")
         print(" IP_ADDRESS: " + self._ip_address_node)
@@ -57,9 +61,9 @@ class NNInterfaceNode:
             self._port_node = port
 
 
-    def set_address_node(self, ip_address="127.0.0.1", port=55556):
+    def set_address_nn(self, ip_address="127.0.0.1", port=55556):
         if self._is_initialised:
-            print("Warn[NN_Interface_Node::set_address_node]: NN_Interface_Node is initialised -> ignore!")
+            print("Warn[NN_Interface_Node::set_address_nn]: NN_Interface_Node is initialised -> ignore!")
         else:
             self._ip_address_nn = ip_address
             self._port_nn = port
@@ -81,6 +85,17 @@ class NNInterfaceNode:
 
         self._send_observation(observation)
 
+    def _callback_joy(self, data):
+        if data.buttons[1]:
+            self._nn_control = True
+        elif data.buttons[7]:
+            self._joy_linear = data.axes[1]
+            self._joy_angular = 2.5 * data.axes[2]
+            self._nn_control = False
+        else:
+            self._joy_linear = 0.5 * data.axes[1]
+            self._joy_angular = 1.5 * data.axes[2]
+            self._nn_control = False
 
     def _publish_twist(self, linear_velocity, angular_velocity):
         msg_twist = Twist()
@@ -92,7 +107,7 @@ class NNInterfaceNode:
         msg_twist.angular.y = 0
         msg_twist.angular.z = float(angular_velocity)
 
-        self._publisher.publish(msg_twist)
+        self._publisher_cmd_vel.publish(msg_twist)
 
 
     def _send_observation(self, observation):
@@ -127,23 +142,25 @@ class NNInterfaceNode:
 
     def _worker_udp_communication(self):
         while not rospy.is_shutdown():
-            try:
-                data, address = self._socket.recvfrom(8)
+            if self._nn_control:
+                try:
+                    data, address = self._socket.recvfrom(8)
 
-                if address[0] != self._ip_address_nn:
-                    print("Warn[NN_Interface_Node::receive_observation]: Datagram from wrong ip address[" + address[
-                        0] + "] -> ignore datagram")
-                    continue
+                    if address[0] != self._ip_address_nn:
+                        print("Warn[NN_Interface_Node::receive_observation]: Datagram from wrong ip address[" + address[
+                            0] + "] -> ignore datagram")
+                        continue
 
-                s = struct.Struct("! f f")
-                data_velocity = s.unpack(data)
+                    s = struct.Struct("! f f")
+                    data_velocity = s.unpack(data)
 
-                self._publish_twist(data_velocity[0], data_velocity[1])
+                    self._publish_twist(data_velocity[0], data_velocity[1])
 
-
-            except socket.timeout:
-                # stop robot if a timeout exception is raised
-                self._publish_twist(0.0, 0.0)
+                except socket.timeout:
+                    # stop robot if a timeout exception is raised
+                    self._publish_twist(0.0, 0.0)
+            else:
+                self._publish_twist(self._joy_linear, self._joy_angular)
 
 
     def run(self):
