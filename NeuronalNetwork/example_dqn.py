@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
         state = np.reshape(state, [1, state_size])
 
-        for time in range(500):
+        for iteration in range(500):
             action = agent.act(state)
 
             linear, angular = action_mapper.map_action(action)
@@ -115,10 +115,11 @@ if __name__ == "__main__":
 
             if visualize:
                 env.visualize()
+                #time.sleep(1.0)
 
             if done:
-                print("episode: {}/{}, score: {}, e: {:.2} time:{}"
-                      .format(e, EPISODES, reward_sum, agent.epsilon, time))
+                print("episode: {}/{}, score: {}, e: {:.2} iteration:{}"
+                      .format(e, EPISODES, reward_sum, agent.epsilon, iteration))
                 break
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)

@@ -121,8 +121,6 @@ class NNInterfaceNode:
 
 
         for i in range(self._observation_rotation_size):
-            rospy.logwarn(str(angle_target) + "\t" + str(angle_sum))
-
             if not_set and angle_target < angle_sum:
                 observation.append(1.0)
                 not_set = False
@@ -130,9 +128,6 @@ class NNInterfaceNode:
                 observation.append(0.0)
 
             angle_sum += angle_step_size
-
-        rospy.logwarn(observation)
-        rospy.logwarn(len(observation))
 
         return observation
         
