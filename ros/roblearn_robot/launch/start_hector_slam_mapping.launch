@@ -5,7 +5,7 @@
 		<param name="ip_address" value="192.168.0.10" />
 	</node>
 
-	<node name="link_hokuyo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0.24  0 0 0 base_link laser" />
+	<node name="teleop_joy" pkg="roblearn_robot" type="teleop_joy.py" respawn="true" />
 
 	<node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
     
@@ -43,5 +43,9 @@
 		<param name="tf_map_scanmatch_transform_frame_name" value="scanmatcher_frame" />
 	</node>
 
-	<node name="nn_interface_node" pkg="roblearn_nn_interface" type="nn_interface_node.py" respawn="true" />
+	<node name="link_base_hokuyo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0  0 0 0 base_link laser" />
+	<node name="map_odom_hokuyo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0  0 0 0 map odom" />
+	<node name="odom_footprint_hokuyo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0  0 0 0 odom base_footprint" />
+
+
 </launch>

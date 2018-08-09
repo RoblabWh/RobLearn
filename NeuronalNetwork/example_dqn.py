@@ -10,6 +10,7 @@ from keras.optimizers import Adam
 
 from environment.environment import Environment
 from environment.environment_node_data import Mode
+import action_mapper 
 
 EPISODES = 10000
 
@@ -71,38 +72,16 @@ class DQNAgent:
         self.model.save_weights(name)
 
 
-def convert_action(action):
-    angular = 0
-    linear = 0
-
-    if action == 0:
-        angular = 0.77
-        linear = 0.75
-    elif action == 1:
-        angular = 0.44
-        linear = 1.25
-    elif action == 2:
-        angular = 0
-        linear = 1.5
-    elif action == 3:
-        angular = -0.44
-        linear = 1.25
-    else:
-        angular = -0.77
-        linear = 0.75
-
-    return linear, angular
-
 
 if __name__ == "__main__":
-    env = Environment("room")
-    env.set_mode(Mode.PAIR_RANDOM, terminate_at_end=False)
+    env = Environment("roblab")
+    env.set_mode(Mode.ALL_COMBINATION, terminate_at_end=True)
     env.use_observation_rotation_size(True)
     #env.set_cluster_size(10)
     env.set_observation_rotation_size(128)
 
     state_size = env.observation_size()
-    action_size = 5
+    action_size = action_mapper.ACTION_SIZE
     agent = DQNAgent(state_size, action_size)
     # agent.load("./save/cartpole-dqn.h5")
     done = False
@@ -123,9 +102,9 @@ if __name__ == "__main__":
         for time in range(500):
             action = agent.act(state)
 
-            linear, angular = convert_action(action)
+            linear, angular = action_mapper.map_action(action)
 
-            next_state, reward, done, _ = env.step(linear, angular, 10)
+            next_state, reward, done, _ = env.step(linear, angular, 20)
 
             next_state = np.reshape(next_state, [1, state_size])
 

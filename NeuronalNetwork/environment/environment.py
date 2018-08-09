@@ -91,7 +91,7 @@ class Environment:
 
             angle_target = self._fitness_data.angle_from_robot_to_end()
             angle_step_size = 2 * math.pi / self._observation_rotation_size
-            angle_sum = - math.pi
+            angle_sum = - math.pi + angle_step_size
 
             for i in range(self._observation_rotation_size):
                 if not_set and angle_target < angle_sum:

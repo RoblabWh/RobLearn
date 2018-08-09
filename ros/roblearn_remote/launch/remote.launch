@@ -1,0 +1,5 @@
+<launch>
+	<node name="joy" pkg="joy" type="joy_node" respawn="true">
+		<param name="autorepeat_rate" value="5" />
+	</node>
+</launch>

@@ -3,9 +3,11 @@ import socket
 import threading
 import struct
 import sys
+import math
 
 import rospy
-from geometry_msgs.msg import Twist
+from tf.transformations import euler_from_quaternion
+from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Joy
 
 
@@ -13,6 +15,7 @@ class NNInterfaceNode:
     def __init__(self):
         self._is_initialised = False
         self._nn_control = False
+        self._use_observation_rotation = False
 
         self._ip_address_node = "127.0.0.1"
         self._port_node = 55555
@@ -25,12 +28,20 @@ class NNInterfaceNode:
         self._datagram_index = 0
         self._datagram_size_slice = 256 # * 4 byte size of the packet
 
+        self._observation_rotation_size = 8
+
         self._publisher_cmd_vel = None
+      
         self._laserscan_counter = 0
         self._laserscan_counter_max = 20
 
+        self._pose_goal = None
+        self._pose_robot = None
+
         self._joy_linear = 0
         self._joy_angular = 0
+
+
 
 
 
@@ -44,6 +55,8 @@ class NNInterfaceNode:
         self._publisher_cmd_vel = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=1)
         rospy.Subscriber("/scan", LaserScan, self._callback_laserscan)
         rospy.Subscriber("/joy", Joy, self._callback_joy)
+        rospy.Subscriber("/move_base_simple/goal", PoseStamped, self._callback_goal)
+        rospy.Subscriber("/poseupdate", PoseWithCovarianceStamped, self._callback_robot)
 
         print("- - - NN_Interface_Node - - -")
         print(" IP_ADDRESS: " + self._ip_address_node)
@@ -71,8 +84,61 @@ class NNInterfaceNode:
             self._ip_address_nn = ip_address
             self._port_nn = port
 
+    def set_use_observation_rotation(self, value):
+        self._use_observation_rotation = value
+
+    def set_observation_rotation_size(self, size):
+        self._observation_rotation_size = size
+
+    @staticmethod
+    def _difference_two_angles(angle1, angle2):
+        diff = (angle1 - angle2) % (math.pi * 2)
+        if diff >= math.pi:
+            diff -= math.pi * 2
+        return diff
+
+    @staticmethod
+    def _get_orientation_from_quaternion(quaternion):
+        euler = euler_from_quaternion(quaternion)
+        return euler[2]
+
+
+    def _get_angle_from_robot_to_goal(self):
+        quaternion_robot = (self._pose_robot.pose.pose.orientation.x,self._pose_robot.pose.pose.orientation.y, self._pose_robot.pose.pose.orientation.z,self._pose_robot.pose.pose.orientation.w)
+        angle_robot = self._get_orientation_from_quaternion(quaternion_robot)
+        angle_robot_to_goal = math.atan2(self._pose_goal.pose.position.y - self._pose_robot.pose.pose.position.y, self._pose_goal.pose.position.x - self._pose_robot.pose.pose.position.x)
+        return self._difference_two_angles(angle_robot, angle_robot_to_goal)
+
+    def _get_observation_rotation(self):
+        not_set = True
+
+        observation = []
+
+        angle_target = self._get_angle_from_robot_to_goal()
+        angle_step_size = 2 * math.pi / float(self._observation_rotation_size)
+        angle_sum = - math.pi + angle_step_size
+
+
+
+        for i in range(self._observation_rotation_size):
+            rospy.logwarn(str(angle_target) + "\t" + str(angle_sum))
+
+            if not_set and angle_target < angle_sum:
+                observation.append(1.0)
+                not_set = False
+            else:
+                observation.append(0.0)
+
+            angle_sum += angle_step_size
+
+        rospy.logwarn(observation)
+        rospy.logwarn(len(observation))
+
+        return observation
+        
 
     def _callback_laserscan(self, data):
+        successful = True
         if self._laserscan_counter < self._laserscan_counter_max:
             self._laserscan_counter += 1
         else:
@@ -89,6 +155,14 @@ class NNInterfaceNode:
                     range = range / range_max
                 observation.append(float(range))
 
+            if self._use_observation_rotation:
+                if self._pose_goal is None or self._pose_robot is None:
+                    rospy.logwarn("Need robot pose and goal pose -> skip this laser scan!")
+                    successful = False
+                else:
+                    observation += self._get_observation_rotation()
+
+
             self._send_observation(observation)
 
             self._laserscan_counter = 0
@@ -104,6 +178,13 @@ class NNInterfaceNode:
             self._joy_linear = 0.5 * data.axes[1]
             self._joy_angular = 1.5 * data.axes[2]
             self._nn_control = False
+
+    def _callback_goal(self, data):
+        self._pose_goal = data
+
+    def _callback_robot(self, data):
+        self._pose_robot = data
+        
 
     def _publish_twist(self, linear_velocity, angular_velocity):
         msg_twist = Twist()
@@ -186,6 +267,7 @@ class NNInterfaceNode:
 
 def main():
     nn_interface_node = NNInterfaceNode()
+    nn_interface_node.set_use_observation_rotation(True)
     
     nn_interface_node.init()
     nn_interface_node.run()
