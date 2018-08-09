@@ -29,3 +29,10 @@ Abhängikeiten
 Probleme:
 - Manchmal klappt die Gnuplot-Visualierung nicht.
 
+_LEVE Modus_
+- "test"       --> set_mode(Mode.ALL_COMBINATION, terminate_at_end=True) (easy)      -- Must work
+- "diff_forms" --> set_mode(Mode.PAIR_COMBINATION, terminate_at_end=True)(easy)      -- Must work
+- "roblab"     --> set_mode(Mode.ALL_COMBINATION, terminate_at_end=True) (medium)    -- Start is hard
+- "room"       --> set_mode(Mode.ALL_RANDOM, terminate_at_end=False)     (hard)      -- Success would be very nice
+- "four_rooms" --> set_mode(Mode.ALL_RANDOM, terminate_at_end=False)     (very hard) -- Challenger
+

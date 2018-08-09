@@ -74,8 +74,8 @@ class DQNAgent:
 
 
 if __name__ == "__main__":
-    env = Environment("roblab")
-    env.set_mode(Mode.ALL_COMBINATION, terminate_at_end=True)
+    env = Environment("diff_forms")
+    env.set_mode(Mode.PAIR_ALL, terminate_at_end=True)
     env.use_observation_rotation_size(True)
     #env.set_cluster_size(10)
     env.set_observation_rotation_size(128)
