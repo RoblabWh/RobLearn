@@ -14,26 +14,29 @@ from environment.environment import Environment
 
 
 VISUALIZE = True
+MULTIPLE_ROOMS = False
 OUTPUT_GRAPH = True
 LOG_DIR = './log'
 
 N_WORKERS = multiprocessing.cpu_count()  # Number of workers
 # N_WORKERS = 4
 
-MAX_EP_STEP = 200
-MAX_GLOBAL_EP = 150000
+MAX_EP_STEP = 200  # 200
+MAX_GLOBAL_EP = 150000  # 1500 150000
 GLOBAL_NET_SCOPE = 'Global_Net'
-UPDATE_GLOBAL_ITER = 5
+UPDATE_GLOBAL_ITER = 10
 GAMMA = 0.9
 ENTROPY_BETA = 0.01
-LR_A = 0.1    # 0.0001    # learning rate for actor
+LR_A = 0.0001    # 0.0001    # learning rate for actor
 LR_C = 0.001    # learning rate for critic
 GLOBAL_RUNNING_R = []
 GLOBAL_EP = 0
 
 ENV_NAME = "test"
+#ENV_NAME = "diff_forms"
+#ENV_NAME = "roblab"
 CLUSTER_SIZE = 10
-SKIP_LRF = 20
+SKIP_LRF = 10
 
 env = Environment(ENV_NAME)
 env.set_cluster_size(CLUSTER_SIZE)
@@ -62,7 +65,8 @@ class ACNet(object):
                     self.c_loss = tf.reduce_mean(tf.square(td))
 
                 with tf.name_scope('wrap_a_out'):
-                    mu, sigma = mu * random.randint(-300,301), sigma + 1e-4
+                    # mu, sigma = mu * random.randint(-300, 301), sigma + 1e-4
+                    mu, sigma = mu * random.uniform(0, 1), sigma + 1e-4
                     # mu, sigma = mu * A_BOUND[1], sigma + 1e-4
 
                 normal_dist = tf.distributions.Normal(mu, sigma)
@@ -75,7 +79,8 @@ class ACNet(object):
                     self.a_loss = tf.reduce_mean(-self.exp_v) # Policy loss / actor loss
 
                 with tf.name_scope('choose_a'):  # use local params to choose action
-                    self.A = tf.Variable(np.random.rand(1, 5))
+                    # self.A = tf.Variable(np.random.rand(1, 5))
+                    self.A = tf.reshape(normal_dist.sample(1), [1, 5])
 
                 with tf.name_scope('local_grad'):
                     self.a_grads = tf.gradients(self.a_loss, self.a_params)
@@ -92,7 +97,6 @@ class ACNet(object):
     def _build_net(self, scope):
         w_init = tf.random_normal_initializer(0., .1)
         with tf.variable_scope('critic'):   # only critic controls the rnn update
-            cell_size = 64
             s = tf.expand_dims(self.s, axis=1,
                                name='timely_input')  # [time_step, feature] => [time_step, batch, feature]
 
@@ -105,7 +109,7 @@ class ACNet(object):
             self.init_state = multi_rnn_cell.zero_state(batch_size=1, dtype=tf.float32)
 
             # 'outputs' is a tensor of shape [batch_size, max_time, 256]
-            # 'state' is a N-tuple where N is the number of LSTMCells containing a
+            # 'self.final_state' is a N-tuple where N is the number of LSTMCells containing a
             # tf.contrib.rnn.LSTMStateTuple for each cell
             outputs, self.final_state = tf.nn.dynamic_rnn(cell=multi_rnn_cell,
                                                inputs=s,
@@ -132,13 +136,24 @@ class ACNet(object):
         SESS.run([self.pull_a_params_op, self.pull_c_params_op])
 
     def choose_action(self, s, cell_state):  # run by a local
+
         a, cell_state = SESS.run([self.A, self.final_state], {self.s: s, self.init_state: cell_state})
+        # print("test ", test)
+        # print("test.shape ", test.shape)
         return a, cell_state
 
 
 class Worker(object):
     def __init__(self, name, globalAC):
-        self.env = Environment(ENV_NAME)
+        if MULTIPLE_ROOMS:
+            if name == "W_0" or name == "W_1" or name == "W_2":
+                self.env = Environment(ENV_NAME)
+            elif name == "W_3" or name == "W_4" or name == "W_5":
+                self.env = Environment("roblab")
+            else:
+                self.env = Environment("room")
+        else :
+            self.env = Environment(ENV_NAME)
         self.env.set_cluster_size(CLUSTER_SIZE)
         self.name = name
         self.AC = ACNet(name, globalAC)
@@ -185,8 +200,10 @@ class Worker(object):
                 s_, r, done, _ = self.env.step(linear, angular, SKIP_LRF)  # Die Zahl heißt: überspringe so viele Laserscanns
                 s_ = np.reshape(s_, [1, N_S])
 
+                # if (self.name == 'W_0' or self.name == "W_3") and VISUALIZE:
                 if (self.name == 'W_0') and VISUALIZE:
-                    self.env.visualize()
+                   self.env.visualize()
+                # self.env.visualize()
 
                 done = True if ep_t == MAX_EP_STEP - 1 else done
 
@@ -219,6 +236,7 @@ class Worker(object):
                     self.AC.update_global(feed_dict)
                     buffer_s, buffer_a, buffer_r = [], [], []
                     self.AC.pull_global()
+
                     keep_state = deepcopy(rnn_state_)   # replace the keep_state as the new initial rnn state_
 
                 s = s_
@@ -230,11 +248,13 @@ class Worker(object):
                         GLOBAL_RUNNING_R.append(ep_r)
                     else:
                         GLOBAL_RUNNING_R.append(0.9 * GLOBAL_RUNNING_R[-1] + 0.1 * ep_r)
-                    print(
-                        self.name,
-                        "Ep:", GLOBAL_EP,
-                        "| Ep_r: %i" % GLOBAL_RUNNING_R[-1],
-                          )
+
+                    if self.name == "W_0":
+                        print(
+                            self.name,
+                            "Ep:", GLOBAL_EP,
+                            "| Ep_r: %i" % GLOBAL_RUNNING_R[-1],
+                              )
                     GLOBAL_EP += 1
                     break
 
@@ -243,10 +263,10 @@ if __name__ == "__main__":
     SESS = tf.Session()
 
     with tf.device("/cpu:0"):
-        # OPT_A = tf.train.RMSPropOptimizer(LR_A, name='RMSPropA')
-        # OPT_C = tf.train.RMSPropOptimizer(LR_C, name='RMSPropC')
-        OPT_A = tf.train.AdamOptimizer(LR_A, name='AdamA')
-        OPT_C = tf.train.AdamOptimizer(LR_C, name='AdamC')
+        OPT_A = tf.train.RMSPropOptimizer(LR_A, name='RMSPropA')
+        OPT_C = tf.train.RMSPropOptimizer(LR_C, name='RMSPropC')
+        # OPT_A = tf.train.AdamOptimizer(LR_A, name='AdamA')
+        # OPT_C = tf.train.AdamOptimizer(LR_C, name='AdamC')
 
         GLOBAL_AC = ACNet(GLOBAL_NET_SCOPE)  # we only need its params
         workers = []

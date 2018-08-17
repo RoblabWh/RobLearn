@@ -10,7 +10,7 @@ import shutil
 from environment.environment import Environment
 
 
-VISUALIZE = False
+VISUALIZE = True
 OUTPUT_GRAPH = True
 LOG_DIR = './log'
 N_WORKERS = multiprocessing.cpu_count()  # Number of workers
@@ -127,20 +127,20 @@ class Worker(object):
         linear = 0
 
         if action == 0:
-            angular = 0.77
-            linear = 0.75
+            angular = 1.0
+            linear = 0.5
         elif action == 1:
-            angular = 0.44
-            linear = 1.25
-        elif action == 2:
-            angular = 0
-            linear = 1.5
-        elif action == 3:
-            angular = -0.44
-            linear = 1.25
-        else:
-            angular = -0.77
+            angular = 0.5
             linear = 0.75
+        elif action == 2:
+            angular = 0.0
+            linear = 1.0
+        elif action == 3:
+            angular = -0.5
+            linear = 0.75
+        else:
+            angular = -1.0
+            linear = 0.5
 
         return linear, angular
 
@@ -158,6 +158,7 @@ class Worker(object):
                 if self.name == 'W_0':
                     self.env.visualize()
                 a, rnn_state_ = self.AC.choose_action(s, rnn_state)  # get the action and next rnn state
+
                 action = np.argmax(a)
 
                 linear, angular = self.convert_action(action)
@@ -165,12 +166,13 @@ class Worker(object):
                 s_, r, done, _ = self.env.step(linear, angular, 10)  # Die Zahl heißt: überspringe so viele Laserscanns
                 s_ = np.reshape(s_, [1, N_S])
 
-                done = True if ep_t == MAX_EP_STEP - 1 else False
+                done = True if ep_t == MAX_EP_STEP - 1 else done
 
                 ep_r += r
                 buffer_s.append(s)
                 buffer_a.append(a)
-                buffer_r.append((r+8)/8)    # normalize
+                buffer_r.append(r)
+                # buffer_r.append((r+8)/8)    # normalize
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:   # update global and assign to local net
                     if done:
