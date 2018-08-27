@@ -4,6 +4,11 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Joy
 
 def callback(data):
+    """
+    Callback of the joy subscriber to process the data of the joystick.
+    :param data: Joy.
+    :return:
+    """
     turbo = 0.5
     if data.buttons[7] == 1:
         turbo = 1
@@ -14,7 +19,10 @@ def callback(data):
     pub.publish(twist)
 
 def start():
-
+    """
+    Start the teleop node to operate the robot with the joystick.
+    :return:
+    """
     rospy.init_node('teleop_joy')
 
     global pub

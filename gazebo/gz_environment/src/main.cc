@@ -9,14 +9,18 @@
 #include <iostream>
 
 
-
+/**
+ * @brief main Start the gz envoriment programm.
+ * @param argc Number of arguments.
+ * @param argv Arguments values.
+ * @return Program exit code.
+ */
 int main(int argc, char *argv[])
 {
     Environment env;
 
     env.init(argc, argv);
     env.run();
-
 
     return EXIT_SUCCESS;
 }

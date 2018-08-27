@@ -2,7 +2,9 @@
 
 #include <boost/python.hpp>
 
-
+/**
+ * Boost python bindings to get the values from the 2dsimulation.
+ */
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pysim2d)

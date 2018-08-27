@@ -74,8 +74,9 @@ class DQNAgent:
 
 
 if __name__ == "__main__":
-    env = Environment("diff_forms")
-    env.set_mode(Mode.PAIR_ALL, terminate_at_end=True)
+    env = Environment("room")
+    #env.set_mode(Mode.PAIR_ALL, terminate_at_end=True)
+    env.set_mode(Mode.ALL_RANDOM, terminate_at_end=False)
     env.use_observation_rotation_size(True)
     #env.set_cluster_size(10)
     env.set_observation_rotation_size(128)
@@ -113,8 +114,8 @@ if __name__ == "__main__":
             agent.remember(state, action, reward, next_state, done)
             state = next_state
 
-            if visualize:
-                env.visualize()
+            #if visualize:
+            env.visualize()
                 #time.sleep(1.0)
 
             if done:

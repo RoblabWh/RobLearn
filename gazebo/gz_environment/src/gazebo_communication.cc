@@ -29,6 +29,7 @@ GazeboCommunication::~GazeboCommunication()
 
 void GazeboCommunication::subscriber_callback_laser(ConstLaserScanStampedPtr &laserscan)
 {
+    // Reset the turtelbot to the startpositio if the cycle counter is not zero
     if (0 < cycles_to_start_position) {
         send_model_modify_turtlebot2_pose(input_processing.get_pose_start());
         send_velocity_cmd(0,0);
@@ -36,8 +37,10 @@ void GazeboCommunication::subscriber_callback_laser(ConstLaserScanStampedPtr &la
 
         cycles_to_start_position--;
     }
+    // Process the laserscan message when the laserscan is snychronized
     else if(this->get_state_laser() == GazeboCommunication::STATE_LASER::SYNCED)
     {
+        // Process laserscan message to protobuffer message
         std::shared_ptr<MsgToAgent> msg = input_processing.process(laserscan);
 
         if (msg->done())
@@ -54,6 +57,7 @@ void GazeboCommunication::subscriber_callback_laser(ConstLaserScanStampedPtr &la
         MESSAGE_INFO("iteration: " << iterations << "  resets: " << resets << "  reward: " << msg->reward());
 
     }
+    // Set the laserscan state to snchronized when the first laserscan message is arrived.
     else if (this->get_state_laser() == GazeboCommunication::STATE_LASER::SYNCING)
     {
         this->state_laser = GazeboCommunication::STATE_LASER::SYNCED;
@@ -132,6 +136,7 @@ bool GazeboCommunication::init(int argc, char *argv[])
 
     this->subscriber_laserscan = this->node->Subscribe(TOPIC_NAME_LASERSCAN, &GazeboCommunication::subscriber_callback_laser, this);
 
+    // Wait for the publisher to connected to the gazebo sever
     this->publisher_world_control->WaitForConnection();
     this->publisher_turtlebot2_velocity_cmd->WaitForConnection();
     this->publisher_turtlebot2_model_modify->WaitForConnection();
@@ -151,7 +156,6 @@ std::string GazeboCommunication::get_address()
 
 void GazeboCommunication::process_msg_to_environment(std::shared_ptr<MsgToEnvironment> msg)
 {
-
     this->send_velocity_cmd(msg->linear_velocity(), msg->angular_velocity());
 
     iterations++;

@@ -65,6 +65,7 @@ void Visualization_Gnuplot::construct_world(const DataContainer &data)
 
 void Visualization_Gnuplot::visualize(const Robot &robot, const DataContainer &data, const Circle &end_node)
 {
+    // init the pipeline if not initializied
     if (!is_initialized) {
         init(data);
     }
@@ -101,13 +102,7 @@ void Visualization_Gnuplot::visualize(const Robot &robot, const DataContainer &d
 
     ss << "EOF\n";
 
-
-
-
     fprintf(pipe, "%s%s", world.c_str(), ss.str().c_str());
 
     fflush(pipe);
-
-
-
 }

@@ -255,7 +255,7 @@ bool Simulation2D::load_world(const std::string &world)
                 std::cerr << "   ERROR: parsing float values for line! [Line: " << line_counter << "]" << std::endl;
             }
         }
-        //
+        // print error and go on
         else
         {
             std::cerr << "   WARN: unknwon split size of " << line_split.size() << "! [Line: " << line_counter << "]";

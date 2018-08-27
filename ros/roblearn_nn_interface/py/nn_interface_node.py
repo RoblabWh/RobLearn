@@ -12,6 +12,9 @@ from sensor_msgs.msg import LaserScan, Joy
 
 
 class NNInterfaceNode:
+    """
+    Constructor of the NN interface node.
+    """
     def __init__(self):
         self._is_initialised = False
         self._nn_control = False
@@ -46,6 +49,10 @@ class NNInterfaceNode:
 
 
     def init(self):
+        """
+        Init the node. Established the communication to the nn interface and start the ros communication.
+        :return:
+        """
         # init socket
         self._socket.bind((self._ip_address_node, self._port_node))
         self._socket.settimeout(1)
@@ -70,6 +77,12 @@ class NNInterfaceNode:
 
 
     def set_address_node(self, ip_address="127.0.0.1", port=55555):
+        """
+        Set the ip address and the port for the nn interface node.
+        :param ip_address: Ip address.
+        :param port: Port number.
+        :return:
+        """
         if self._is_initialised:
             print("Warn[NN_Interface_Node::set_address_node]: NN_Interface_Node is initialised -> ignore!")
         else:
@@ -78,6 +91,12 @@ class NNInterfaceNode:
 
 
     def set_address_nn(self, ip_address="127.0.0.1", port=55556):
+        """
+        Set the ip address and the port for the nn interface.
+        :param ip_address: Ip address.
+        :param port: Port number.
+        :return:
+        """
         if self._is_initialised:
             print("Warn[NN_Interface_Node::set_address_nn]: NN_Interface_Node is initialised -> ignore!")
         else:
@@ -85,13 +104,29 @@ class NNInterfaceNode:
             self._port_nn = port
 
     def set_use_observation_rotation(self, value):
+        """
+        Set if the observation rotation add to the observation.
+        :param value: Use or not.
+        :return:
+        """
         self._use_observation_rotation = value
 
     def set_observation_rotation_size(self, size):
+        """
+        Set the size of the observation rotation.
+        :param size: Size.
+        :return:
+        """
         self._observation_rotation_size = size
 
     @staticmethod
     def _difference_two_angles(angle1, angle2):
+        """
+        Calculate the difference between to angle.
+        :param angle1: First angle.
+        :param angle2: Second angle.
+        :return: Angle difference.
+        """
         diff = (angle1 - angle2) % (math.pi * 2)
         if diff >= math.pi:
             diff -= math.pi * 2
@@ -99,17 +134,30 @@ class NNInterfaceNode:
 
     @staticmethod
     def _get_orientation_from_quaternion(quaternion):
+        """
+        Get the yaw orientation of the robot.
+        :param quaternion: Input quaternion.
+        :return: Yaw orientation.
+        """
         euler = euler_from_quaternion(quaternion)
         return euler[2]
 
 
     def _get_angle_from_robot_to_goal(self):
+        """
+        Get the angle from the robot to the target node.
+        :return: Angle.
+        """
         quaternion_robot = (self._pose_robot.pose.pose.orientation.x,self._pose_robot.pose.pose.orientation.y, self._pose_robot.pose.pose.orientation.z,self._pose_robot.pose.pose.orientation.w)
         angle_robot = self._get_orientation_from_quaternion(quaternion_robot)
         angle_robot_to_goal = math.atan2(self._pose_goal.pose.position.y - self._pose_robot.pose.pose.position.y, self._pose_goal.pose.position.x - self._pose_robot.pose.pose.position.x)
         return self._difference_two_angles(angle_robot, angle_robot_to_goal)
 
     def _get_observation_rotation(self):
+        """
+        Get the orientation rotation.
+        :return: rotation observation.
+        """
         not_set = True
 
         observation = []
@@ -133,6 +181,11 @@ class NNInterfaceNode:
         
 
     def _callback_laserscan(self, data):
+        """
+        Callback of the laserscan subscriber. Convert the laserscan to teh observation and send it to the nn interface.
+        :param data: LaserScan.
+        :return:
+        """
         successful = True
         if self._laserscan_counter < self._laserscan_counter_max:
             self._laserscan_counter += 1
@@ -163,6 +216,11 @@ class NNInterfaceNode:
             self._laserscan_counter = 0
 
     def _callback_joy(self, data):
+        """
+        Callback of the joy subscriber. Process the joystick action.
+        :param data: Joy.
+        :return:
+        """
         if data.buttons[1]:
             self._nn_control = True
         elif data.buttons[7]:
@@ -175,13 +233,29 @@ class NNInterfaceNode:
             self._nn_control = False
 
     def _callback_goal(self, data):
+        """
+        Callback of the goal subscriber from rviz,
+        :param data: PoseWithCovarianceStamped.
+        :return:
+        """
         self._pose_goal = data
 
     def _callback_robot(self, data):
+        """
+        Callback of the position of the robot from hector slam.
+        :param data: PoseStamped.
+        :return:
+        """
         self._pose_robot = data
         
 
     def _publish_twist(self, linear_velocity, angular_velocity):
+        """
+        Published the action from the nn interface.
+        :param linear_velocity: Linear velocity.
+        :param angular_velocity: angular velocity.
+        :return:
+        """
         msg_twist = Twist()
 
         msg_twist.linear.x = float(linear_velocity)
@@ -195,6 +269,11 @@ class NNInterfaceNode:
 
 
     def _send_observation(self, observation):
+        """
+        Send the observation to the nn interface. Slice the observation into smaller packet.
+        :param observation: Observation data.
+        :return:
+        """
         index_slice = 0
         size_data = len(observation)
         number_of_packets = size_data / self._datagram_size_slice
@@ -225,6 +304,10 @@ class NNInterfaceNode:
 
 
     def _worker_udp_communication(self):
+        """
+        Worker thread for the communication with the nn interface.
+        :return:
+        """
         while not rospy.is_shutdown():
             if self._nn_control:
                 try:
@@ -249,6 +332,10 @@ class NNInterfaceNode:
 
 
     def run(self):
+        """
+        Run method to start the node.
+        :return:
+        """
         if not self._is_initialised:
             sys.exit("Error[NN_Interface_Node::run]: NN_Interface_Node is not initialised -> exit program!")
 

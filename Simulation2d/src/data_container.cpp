@@ -150,19 +150,20 @@ bool DataContainer::calculate_robot_collision(Robot &robot)
 #endif
 
 
+    // Check the circle collision with the robot
     for (int i = 0; i < circle_distance.size(); ++i) {
         if (circle_distance[i] <= (robot.get_collision_radius() + circle_radius[i])) {
             return true;
         }
     }
 
+    // Check the line collsion with the robot
     for (int i = 0; i < line_distance.size(); ++i) {
         if (line_distance[i] <= robot.get_collision_radius() && is_point_in_line_segment(robot.get_position_x(), robot.get_position_y(), i))
         {
             return true;
         }
     }
-
 
     // check if robot is out of area
     if (robot.get_position_x() <= this->area_min_x || this->area_max_x <= robot.get_position_x() || robot.get_position_y() <= this->area_min_y || this->area_max_y <= robot.get_position_y()) {
@@ -192,11 +193,11 @@ void DataContainer::calculate_lidar_collision(Robot &robot)
     Eigen::Affine2f pose = robot.get_pose();
     Lidar &lidar = robot.get_lidar();
 
-
-
+    // fill lidar with max range
     lidar.fill_laser_distance_with_range_max();
 
 
+    // lidar collision with the lines from the world
     for (int i = 0; i < line_distance.size(); ++i) {
         if (line_distance[i] <= lidar.get_range_max())
         {
@@ -204,7 +205,7 @@ void DataContainer::calculate_lidar_collision(Robot &robot)
         }
     }
 
-
+    // lidar collision with the circles from the world
     for (int i = 0; i < circle_distance.size(); ++i)
     {
         if (circle_distance[i] <= lidar.get_range_max())
@@ -213,6 +214,7 @@ void DataContainer::calculate_lidar_collision(Robot &robot)
         }  
     }
 
+    // make the lidar noisy
     lidar.apply_bias();
 }
 

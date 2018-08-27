@@ -2,18 +2,21 @@
 
 #include <cmath>
 
+// default values for the colision range and goal radius
 const static float STD_COLLISION_RANGE = 0.25f;
 const static float STD_GOAL_RADIUS = 2.0f;
 
 InputProcessing::InputProcessing()
 {
+    // hardcode start position
     this->pose_start.rot.SetFromEuler(0,0,-M_PI_2);
     this->pose_start.pos.Set(0,14,0);
 
+    // hardcode target position
     this->pose_target.rot.SetFromEuler(0,0,-M_PI_2);
     this->pose_target.pos.Set(0,-14,0);
 
-    this->position_last = pose_target.pos;
+    this->position_last = pose_start.pos;
 
     this->is_collidied = false;
     this->is_goal = false;
@@ -23,15 +26,17 @@ std::shared_ptr<MsgToAgent> InputProcessing::process(ConstLaserScanStampedPtr la
 {
     std::shared_ptr<MsgToAgent> msg = std::shared_ptr<MsgToAgent>(new MsgToAgent);
 
+    // Check if turtlebot is collidied and reach the target
     this->is_collidied = this->check_collision(laserscan);
     this->is_goal = this->check_goal(laserscan);
 
-
+    // Get observation from the laserscan and set if the simulation is done
     this->get_observacation(laserscan, msg);
     msg->set_done(is_collidied || is_goal);
     msg->set_reward(this->get_reward(laserscan));
     msg->set_info("nice");
 
+    // If simulation is done set the last position to start position
     if (msg->done())
     {
         this->position_last = pose_start.pos;
@@ -73,11 +78,11 @@ float InputProcessing::get_reward(ConstLaserScanStampedPtr laserscan)
 
     float distance_beween_start_and_goal = (pose_target.pos - pose_start.pos).GetLength();
 
-    float distance_betwenn_last_step = (pose_target.pos - position_last).GetLength() - (pose_target.pos - position).GetLength();
+    float distance_between_last_step = (pose_target.pos - position_last).GetLength() - (pose_target.pos - position).GetLength();
     float distance_to_goal = (pose_target.pos - position).GetLength() / distance_beween_start_and_goal;
 
-
-    float reward = (1 - distance_to_goal) + distance_betwenn_last_step;
+    // Get higher reward when the turtlebot drive longer distance per step and get closer to the target position
+    float reward = (1 - distance_to_goal) + distance_between_last_step;
 
     this->position_last = position;
 
