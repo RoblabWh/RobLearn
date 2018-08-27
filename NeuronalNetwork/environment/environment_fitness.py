@@ -89,7 +89,8 @@ class FitnessData:
             reward = 100
             done = self._handle_terminate_at_end()
         else:
-            reward = -1
+            reward = 1
+            # reward = -1
 
         self._robot_x_last = robot_x
         self._robot_y_last = robot_y
