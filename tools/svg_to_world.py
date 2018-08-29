@@ -13,10 +13,19 @@ tag_name_title = "{http://www.w3.org/2000/svg}title"
 
 
 def print_usage():
+    """
+    Print the usage of the python script.
+    :return:
+    """
     print("Usage: svg_to_world.py <INPUT-SVG> [SCALE]")
 
 
 def get_border(view_box):
+    """
+    Get the view box.
+    :param view_box: View box tag.
+    :return: x, y, width, height
+    """
     view_box = str(view_box).split(" ")
     x = float(view_box[0])
     y = float(view_box[1])
@@ -27,6 +36,11 @@ def get_border(view_box):
 
 
 def get_translate(group):
+    """
+    Get the translation of the complette svg group.
+    :param group: Group tag.
+    :return: x, y
+    """
     if group is None:
         return 0, 0
     else:
@@ -42,6 +56,11 @@ def get_translate(group):
 
 
 def get_node(title):
+    """
+    Get the node from the circle title tag.
+    :param title: Title of the circle
+    :return: successfull, is_start, is_end, number, angle_start, angle_end
+    """
     title = title.split(" ")
     successful = True
 
@@ -90,6 +109,11 @@ def get_node(title):
 
 
 def check_node(data_node):
+    """
+    Check if the node data from the svg file are correct.
+    :param data_node: Node data
+    :return: True when the data are correct.
+    """
     counter_start = 0
     counter_end = 0
     counter_start_end = 0
@@ -114,11 +138,11 @@ def check_node(data_node):
         return False
     return True
 
-
-
-
-
 def main():
+    """
+    Main program routine to create from the svg file a node and world file.
+    :return:
+    """
 
     print("*** svg_to_world.py ***")
 
