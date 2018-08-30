@@ -1,5 +1,5 @@
 '''
-Implementierung von A3C mit 2 LSTMcells
+Implementierung von A3C mit 2 LSTM cells
 '''
 import multiprocessing
 import threading
@@ -9,22 +9,38 @@ import random
 import os
 import shutil
 from copy import deepcopy
+from tensorflow.python.saved_model import tag_constants
 
 from environment.environment import Environment
 
+# Set to use a saved global net
+RESTORE_SAVED_GLOBAL = False
+SAVED_GLOBAL_NAME = "test5"
 
+# Set to save the global net every SAVE_INTERVAL episode
+SAVE_GLOBAL = True
+SAVE_INTERVAL = 10000
+
+# Set to activate visualisation
 VISUALIZE = True
+# Set to use multiple rooms for the different threads
 MULTIPLE_ROOMS = False
+
+NET_NAME = "plus_rotation"
 OUTPUT_GRAPH = True
 LOG_DIR = './log'
+NET_LOG_DIR = "./net_log/nets/"
+NET_DIR = NET_LOG_DIR + NET_NAME + "/" + NET_NAME + ".ckpt"
+NET_DIR_SAVED = NET_LOG_DIR + SAVED_GLOBAL_NAME + "/" + SAVED_GLOBAL_NAME + ".ckpt"
 
 N_WORKERS = multiprocessing.cpu_count()  # Number of workers
 # N_WORKERS = 4
 
 MAX_EP_STEP = 200  # 200
-MAX_GLOBAL_EP = 150000  # 1500 150000
+MAX_GLOBAL_EP = 150000  # 150000  # 1500 150000
 GLOBAL_NET_SCOPE = 'Global_Net'
 UPDATE_GLOBAL_ITER = 10
+
 GAMMA = 0.9
 ENTROPY_BETA = 0.01
 LR_A = 0.0001    # 0.0001    # learning rate for actor
@@ -33,15 +49,16 @@ GLOBAL_RUNNING_R = []
 GLOBAL_EP = 0
 
 ENV_NAME = "test"
-#ENV_NAME = "diff_forms"
-#ENV_NAME = "roblab"
+ENV_NAME_2 = "roblab"
+ENV_NAME_3 = "room"
+
 CLUSTER_SIZE = 10
-SKIP_LRF = 10
+SKIP_LRF = 20
 
 env = Environment(ENV_NAME)
 env.set_cluster_size(CLUSTER_SIZE)
 
-N_S = env.observation_size()  # state_size
+N_S = env.observation_size() + 64  # state_size  TODO
 N_A = 5  # action size
 
 
@@ -79,7 +96,6 @@ class ACNet(object):
                     self.a_loss = tf.reduce_mean(-self.exp_v) # Policy loss / actor loss
 
                 with tf.name_scope('choose_a'):  # use local params to choose action
-                    # self.A = tf.Variable(np.random.rand(1, 5))
                     self.A = tf.reshape(normal_dist.sample(1), [1, 5])
 
                 with tf.name_scope('local_grad'):
@@ -94,8 +110,12 @@ class ACNet(object):
                     self.update_a_op = OPT_A.apply_gradients(zip(self.a_grads, globalAC.a_params))
                     self.update_c_op = OPT_C.apply_gradients(zip(self.c_grads, globalAC.c_params))
 
+        # Add ops to save and restore all the variables.
+        self.saver = tf.train.Saver()
+
     def _build_net(self, scope):
         w_init = tf.random_normal_initializer(0., .1)
+
         with tf.variable_scope('critic'):   # only critic controls the rnn update
             s = tf.expand_dims(self.s, axis=1,
                                name='timely_input')  # [time_step, feature] => [time_step, batch, feature]
@@ -127,6 +147,7 @@ class ACNet(object):
             sigma = tf.layers.dense(l_a, N_A, tf.nn.softplus, kernel_initializer=w_init, name='sigma')
         a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/actor')
         c_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/critic')
+
         return mu, sigma, v, a_params, c_params
 
     def update_global(self, feed_dict):  # run by a local
@@ -136,11 +157,15 @@ class ACNet(object):
         SESS.run([self.pull_a_params_op, self.pull_c_params_op])
 
     def choose_action(self, s, cell_state):  # run by a local
-
         a, cell_state = SESS.run([self.A, self.final_state], {self.s: s, self.init_state: cell_state})
-        # print("test ", test)
-        # print("test.shape ", test.shape)
         return a, cell_state
+
+    def save_global(self):
+        # TODO
+        self.saver.save(SESS, NET_DIR)
+        # inputs = {"s": self.s}
+        # outputs = {"v": self.v}
+        # tf.saved_model.simple_save(SESS, NET_DIR, inputs, outputs)
 
 
 class Worker(object):
@@ -149,12 +174,15 @@ class Worker(object):
             if name == "W_0" or name == "W_1" or name == "W_2":
                 self.env = Environment(ENV_NAME)
             elif name == "W_3" or name == "W_4" or name == "W_5":
-                self.env = Environment("roblab")
+                self.env = Environment(ENV_NAME_2)
             else:
-                self.env = Environment("room")
-        else :
+                self.env = Environment(ENV_NAME_3)
+        else:
             self.env = Environment(ENV_NAME)
+
         self.env.set_cluster_size(CLUSTER_SIZE)
+        self.env.set_observation_rotation_size(64)  # TODO
+        self.env.use_observation_rotation_size(True)
         self.name = name
         self.AC = ACNet(name, globalAC)
 
@@ -197,13 +225,12 @@ class Worker(object):
 
                 linear, angular = self.convert_action(action)
 
-                s_, r, done, _ = self.env.step(linear, angular, SKIP_LRF)  # Die Zahl heißt: überspringe so viele Laserscanns
+                s_, r, done, _ = self.env.step(linear, angular, SKIP_LRF)
                 s_ = np.reshape(s_, [1, N_S])
 
                 # if (self.name == 'W_0' or self.name == "W_3") and VISUALIZE:
                 if (self.name == 'W_0') and VISUALIZE:
-                   self.env.visualize()
-                # self.env.visualize()
+                    self.env.visualize()
 
                 done = True if ep_t == MAX_EP_STEP - 1 else done
 
@@ -250,12 +277,17 @@ class Worker(object):
                         GLOBAL_RUNNING_R.append(0.9 * GLOBAL_RUNNING_R[-1] + 0.1 * ep_r)
 
                     if self.name == "W_0":
-                        print(
-                            self.name,
-                            "Ep:", GLOBAL_EP,
-                            "| Ep_r: %i" % GLOBAL_RUNNING_R[-1],
-                              )
+                        print(self.name, "Ep:", GLOBAL_EP, "Ep_r:", ep_r)
+                        # print(
+                        #     self.name,
+                        #     "Ep:", GLOBAL_EP,
+                        #     "| Ep_r: %i" % GLOBAL_RUNNING_R[-1],
+                        #       )
                     GLOBAL_EP += 1
+                    if GLOBAL_EP % SAVE_INTERVAL == 0:
+                        print("Versuche zu Speichern...")
+                        self.AC.save_global()
+                        print("...gespeichert!")
                     break
 
 
@@ -269,6 +301,12 @@ if __name__ == "__main__":
         # OPT_C = tf.train.AdamOptimizer(LR_C, name='AdamC')
 
         GLOBAL_AC = ACNet(GLOBAL_NET_SCOPE)  # we only need its params
+
+        if RESTORE_SAVED_GLOBAL:
+            print("Restore Net:", NET_DIR_SAVED)
+            GLOBAL_AC.saver.restore(SESS, NET_DIR_SAVED)
+            print("...restored!")
+
         workers = []
         # Create worker
         for i in range(N_WORKERS):
