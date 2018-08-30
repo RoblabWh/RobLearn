@@ -1,0 +1,2 @@
+model_checkpoint_path: "plus_rotation.ckpt"
+all_model_checkpoint_paths: "plus_rotation.ckpt"

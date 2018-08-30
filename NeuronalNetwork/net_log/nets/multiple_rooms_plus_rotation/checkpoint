@@ -1,0 +1,2 @@
+model_checkpoint_path: "multiple_rooms_plus_rotation.ckpt"
+all_model_checkpoint_paths: "multiple_rooms_plus_rotation.ckpt"
