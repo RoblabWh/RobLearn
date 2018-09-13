@@ -75,9 +75,9 @@ class DQNAgent:
 
 
 if __name__ == "__main__":
-    env = Environment("room")
+    env = Environment("../Simulation2d/world/test")
     #env.set_mode(Mode.PAIR_ALL, terminate_at_end=True)
-    env.set_mode(Mode.ALL_RANDOM, terminate_at_end=False)
+    #env.set_mode(Mode.ALL_RANDOM, terminate_at_end=False)
     env.use_observation_rotation_size(True)
     #env.set_cluster_size(10)
     env.set_observation_rotation_size(128)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
         state = np.reshape(state, [1, state_size])
 
-        for iteration in range(500):
+        for iteration in range(100):
             action = agent.act(state)
 
             linear, angular = action_mapper.map_action(action)
@@ -112,11 +112,11 @@ if __name__ == "__main__":
 
             reward_sum = reward_sum + reward
 
-            agent.remember(state, action, reward, next_state, done)
+            agent.remember(state, action, reward_sum, next_state, done)
             state = next_state
 
-            #if visualize:
-            env.visualize()
+            if visualize:
+                env.visualize()
                 #time.sleep(1.0)
 
             if done:

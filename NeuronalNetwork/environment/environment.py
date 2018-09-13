@@ -7,18 +7,15 @@ from .environment_fitness import FitnessData
 from .environment_node import Node
 
 
-PATH_TO_WORLD = "../Simulation2d/world/"
-
-
 class Environment:
     """
     Class as a wrapper for the Simulation2D.
     """
 
-    def __init__(self, world_name=""):
+    def __init__(self, path_to_world):
         """
         Constructor to initialize the environment.
-        :param world_name: The name of the world which should be selected.
+        :param path_to_world: The path to the world which should be selected.
         """
         self._env = pysim2d.pysim2d()
         self._fitness_data = FitnessData()
@@ -26,11 +23,11 @@ class Environment:
         self._observation_rotation_size = 64
         self._observation_rotation_use = False
 
-        if not self._fitness_data.init(PATH_TO_WORLD + world_name + ".node"):
-            print("Error: Load node file! -> " + world_name + ".node")
+        if not self._fitness_data.init(path_to_world + ".node"):
+            print("Error: Load node file! -> " + path_to_world + ".node")
             exit(1)
-        if not self._env.init(PATH_TO_WORLD + world_name + ".world"):
-            print("Error: Load world file -> " + world_name + ".world")
+        if not self._env.init(path_to_world + ".world"):
+            print("Error: Load world file -> " + path_to_world + ".world")
             exit(1)
 
     def set_observation_rotation_size(self, size):
