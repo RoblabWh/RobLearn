@@ -73,7 +73,7 @@ class Worker(object):
                     action_linear, action_angular = a3c.action_mapper.map_action(action)
                     state1, reward, done, _ = self.env.step(action_linear, action_angular, 10) # @TODO Skipping
 
-                    self.env.visualize()
+                    #self.env.visualize()
 
                     episode_buffer.append([state, action, reward, state1, done, value[0,0]])
                     episode_value.append(value[0, 0])

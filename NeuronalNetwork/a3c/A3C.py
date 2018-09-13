@@ -7,7 +7,7 @@ from a3c import ACNetwork, action_mapper, Worker
 from environment.environment import Environment
 
 WORLD_NAME = 'test'
-NUM_WORKERS = 1
+NUM_WORKERS = 4
 
 MAX_EPISODE_LENGTH = 300
 GAMMA = .99 # Discount Rate
