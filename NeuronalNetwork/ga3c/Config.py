@@ -24,13 +24,25 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from environment.environment_fitness import Mode
+
 class Config:
 
     #########################################################################
-    # Game configuration
+    # Environment configuration
 
-    # Name of the game, with version (e.g. PongDeterministic-v0)
-    ATARI_GAME = 'PongDeterministic-v0'
+    # Path of the world
+    PATH_TO_WORLD = "../Simulation2d/world/test"
+    # Mode
+    MODE=Mode.ALL_COMBINATION
+    # Terminate the simulation
+    TERMINATE_AT_END=True
+    # Cluster size of the lidar
+    CLUSTER_SIZE=1
+    # use observation rotation vector
+    USE_OBSERVATION_ROTATION=True
+    # Observation rotation vector size
+    OBSERVATION_ROTATION_SIZE=128
 
     # Enable to see the trained agent in action
     PLAY_MODE = False
@@ -46,11 +58,11 @@ class Config:
     
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 32 
+    AGENTS = 1# 32
     # Number of Predictors
-    PREDICTORS = 2
+    PREDICTORS = 1 #2
     # Number of Trainers
-    TRAINERS = 2
+    TRAINERS = 1 #2
 
     # Device
     DEVICE = 'gpu:0'
@@ -79,8 +91,7 @@ class Config:
 
     # Input of the DNN
     STACKED_FRAMES = 4
-    IMAGE_WIDTH = 84
-    IMAGE_HEIGHT = 84
+    OBSERVATION_SIZE=1081+OBSERVATION_ROTATION_SIZE
 
     # Total number of episodes and annealing frequency
     EPISODES = 400000

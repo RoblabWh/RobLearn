@@ -38,9 +38,8 @@ class NetworkVP:
         self.model_name = model_name
         self.num_actions = num_actions
 
-        self.img_width = Config.IMAGE_WIDTH
-        self.img_height = Config.IMAGE_HEIGHT
-        self.img_channels = Config.STACKED_FRAMES
+        self.observation_size=Config.OBSERVATION_SIZE
+        self.observation_channels = Config.STACKED_FRAMES
 
         self.learning_rate = Config.LEARNING_RATE_START
         self.beta = Config.BETA_START
@@ -67,7 +66,8 @@ class NetworkVP:
 
     def _create_graph(self):
         self.x = tf.placeholder(
-            tf.float32, [None, self.img_height, self.img_width, self.img_channels], name='X')
+            tf.float32, [None, self.observation_size, self.observation_channels], name='X')
+        self.x = tf.expand_dims(self.x, -1)
         self.y_r = tf.placeholder(tf.float32, [None], name='Yr')
 
         self.var_beta = tf.placeholder(tf.float32, name='beta', shape=[])
