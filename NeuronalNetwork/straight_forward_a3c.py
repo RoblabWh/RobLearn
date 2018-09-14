@@ -147,11 +147,21 @@ class ACNet(object):
 
             # cell_out = tf.reshape(outputs, [-1, 256], name='flatten_rnn_outputs')  # joined state representation
 
-            layer1 = tf.layers.dense(self.s, 1024, tf.nn.relu6)
-            layer2 = tf.layers.dense(layer1, 512, tf.nn.relu6)
-            layer3 = tf.layers.dense(layer2, 256, tf.nn.relu6)
 
-            l_c = tf.layers.dense(layer3, 50, tf.nn.relu6, kernel_initializer=w_init, name='lc')
+
+            #layer1 = tf.layers.dense(self.s, 1024, tf.nn.relu6)
+            #layer2 = tf.layers.dense(layer1, 512, tf.nn.relu6)
+            #layer3 = tf.layers.dense(layer2, 256, tf.nn.relu6)
+
+            input = tf.expand_dims(self.s, -1)
+            layer1 = tf.layers.conv1d(input, 16, 3, padding='same')
+            #net = tflearn.layers.max_pool_1d(net, 3)
+            #net = tflearn.layers.conv_1d(net, 16, 2)
+            #net = tflearn.layers.max_pool_1d(net, 2)
+            #net = tflearn.layers.fully_connected(net, 64, activation='relu')
+            #net = tflearn.layers.fully_connected(net, self.action_mapper.ACTION_SIZE, activation='linear')
+
+            l_c = tf.layers.dense(layer1, 256, tf.nn.relu6, kernel_initializer=w_init, name='lc')
 
             v = tf.layers.dense(l_c, 1, kernel_initializer=w_init, name='v')  # state value
 

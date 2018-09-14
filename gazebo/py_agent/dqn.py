@@ -126,5 +126,5 @@ if __name__ == "__main__":
                 break
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
-        if e % 1000 == 0:
-             agent.save("./save/dqn" + str(e) + ".h5")
+        #if e % 1000 == 0:
+        #     agent.save("./save/dqn" + str(e) + ".h5")

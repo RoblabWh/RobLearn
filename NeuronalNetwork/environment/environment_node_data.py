@@ -143,8 +143,6 @@ class NodeData:
 
         tmp = self._data[self._indices_start[0]]
 
-        print(tmp.x(), tmp.y())
-
         return check_successful
 
     def set_mode(self, mode: Mode):
