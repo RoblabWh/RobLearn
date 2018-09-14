@@ -26,15 +26,15 @@ VISUALIZE = True
 # Set to use multiple rooms for the different threads
 MULTIPLE_ROOMS = False
 
-NET_NAME = "plus_rotation"
+NET_NAME = "classification_fst"
 OUTPUT_GRAPH = True
 LOG_DIR = './log'
 NET_LOG_DIR = "./net_log/nets/"
 NET_DIR = NET_LOG_DIR + NET_NAME + "/" + NET_NAME + ".ckpt"
 NET_DIR_SAVED = NET_LOG_DIR + SAVED_GLOBAL_NAME + "/" + SAVED_GLOBAL_NAME + ".ckpt"
 
-N_WORKERS = multiprocessing.cpu_count()  # Number of workers
-# N_WORKERS = 4
+N_WORKERS = multiprocessing.cpu_count() - 1  # Number of workers
+# N_WORKERS = 2
 
 MAX_EP_STEP = 200  # 200
 MAX_GLOBAL_EP = 150000  # 150000  # 1500 150000
@@ -48,7 +48,11 @@ LR_C = 0.001    # learning rate for critic
 GLOBAL_RUNNING_R = []
 GLOBAL_EP = 0
 
-ENV_NAME = "test"
+# ENV_NAME = "square"
+ENV_NAME = "diff_forms"
+# ENV_NAME = "test"
+# ENV_NAME = "room"
+ENV_NAME = "roblab"
 ENV_NAME_2 = "roblab"
 ENV_NAME_3 = "room"
 
@@ -58,7 +62,7 @@ SKIP_LRF = 20
 env = Environment(ENV_NAME)
 env.set_cluster_size(CLUSTER_SIZE)
 
-N_S = env.observation_size() + 64  # state_size  TODO
+N_S = env.observation_size()  # + 64  # state_size  TODO
 N_A = 5  # action size
 
 
@@ -83,7 +87,8 @@ class ACNet(object):
 
                 with tf.name_scope('wrap_a_out'):
                     # mu, sigma = mu * random.randint(-300, 301), sigma + 1e-4
-                    mu, sigma = mu * random.uniform(0, 1), sigma + 1e-4
+                    # mu, sigma = mu * random.uniform(0, 1), sigma + 1e-4
+                    mu, sigma = mu, sigma + 1e-4
                     # mu, sigma = mu * A_BOUND[1], sigma + 1e-4
 
                 normal_dist = tf.distributions.Normal(mu, sigma)
@@ -120,8 +125,11 @@ class ACNet(object):
             s = tf.expand_dims(self.s, axis=1,
                                name='timely_input')  # [time_step, feature] => [time_step, batch, feature]
 
+            lstm_size1 = 128
+            lstm_size2 = 256
+
             # create 2 LSTMCells
-            rnn_layers = [tf.nn.rnn_cell.LSTMCell(size) for size in [128, 256]]
+            rnn_layers = [tf.nn.rnn_cell.LSTMCell(size) for size in [lstm_size1, lstm_size2]]
 
             # create a RNN cell composed sequentially of a number of RNNCells
             multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
@@ -135,9 +143,9 @@ class ACNet(object):
                                                inputs=s,
                                                dtype=tf.float32)
 
-            cell_out = tf.reshape(outputs, [-1, 256], name='flatten_rnn_outputs')  # joined state representation
+            cell_out = tf.reshape(outputs, [-1, lstm_size2], name='flatten_rnn_outputs')  # joined state representation
 
-            l_c = tf.layers.dense(cell_out, 50, tf.nn.relu6, kernel_initializer=w_init, name='lc')
+            l_c = tf.layers.dense(cell_out, 50, tf.nn.relu6, kernel_initializer=w_init, name='lc')  # 50
 
             v = tf.layers.dense(l_c, 1, kernel_initializer=w_init, name='v')  # state value
 
@@ -181,8 +189,8 @@ class Worker(object):
             self.env = Environment(ENV_NAME)
 
         self.env.set_cluster_size(CLUSTER_SIZE)
-        self.env.set_observation_rotation_size(64)  # TODO
-        self.env.use_observation_rotation_size(True)
+        # self.env.set_observation_rotation_size(64)  # TODO
+        # self.env.use_observation_rotation_size(True)
         self.name = name
         self.AC = ACNet(name, globalAC)
 
@@ -226,6 +234,8 @@ class Worker(object):
                 linear, angular = self.convert_action(action)
 
                 s_, r, done, _ = self.env.step(linear, angular, SKIP_LRF)
+                # if (self.name == 'W_0'):
+                #     print("STATE: ", s_)
                 s_ = np.reshape(s_, [1, N_S])
 
                 # if (self.name == 'W_0' or self.name == "W_3") and VISUALIZE:
@@ -277,7 +287,7 @@ class Worker(object):
                         GLOBAL_RUNNING_R.append(0.9 * GLOBAL_RUNNING_R[-1] + 0.1 * ep_r)
 
                     if self.name == "W_0":
-                        print(self.name, "Ep:", GLOBAL_EP, "Ep_r:", ep_r)
+                        print(self.name, "Ep:", GLOBAL_EP, "Ep_r:", int(ep_r))
                         # print(
                         #     self.name,
                         #     "Ep:", GLOBAL_EP,
