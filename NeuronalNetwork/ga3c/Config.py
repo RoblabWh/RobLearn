@@ -32,11 +32,11 @@ class Config:
     # Environment configuration
 
     # Path of the world
-    PATH_TO_WORLD = "../Simulation2d/world/test"
+    PATH_TO_WORLD = "../Simulation2d/world/room"
     # Mode
-    MODE=Mode.ALL_COMBINATION
+    MODE=Mode.ALL_RANDOM
     # Terminate the simulation
-    TERMINATE_AT_END=True
+    TERMINATE_AT_END=False
     # Cluster size of the lidar
     CLUSTER_SIZE=1
     # use observation rotation vector
@@ -44,6 +44,9 @@ class Config:
     # Observation rotation vector size
     OBSERVATION_ROTATION_SIZE=128
 
+
+    # Visualize for training
+    VISUALIZE = True
     # Enable to see the trained agent in action
     PLAY_MODE = False
     # Enable to train
@@ -58,22 +61,25 @@ class Config:
     
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 1# 32
+    AGENTS =  24#32
     # Number of Predictors
-    PREDICTORS = 1 #2
+    PREDICTORS = 2 #2
     # Number of Trainers
-    TRAINERS = 1 #2
+    TRAINERS = 2 #2
 
     # Device
     DEVICE = 'gpu:0'
 
     # Enable the dynamic adjustment (+ waiting time to start it)
-    DYNAMIC_SETTINGS = True
+    DYNAMIC_SETTINGS = False
     DYNAMIC_SETTINGS_STEP_WAIT = 20
     DYNAMIC_SETTINGS_INITIAL_WAIT = 10
 
     #########################################################################
     # Algorithm parameters
+
+    # Max step Iteration -> if read the environment ist done. 0 for endless.
+    MAX_STEP_ITERATION = 80
 
     # Discount factor
     DISCOUNT = 0.99
@@ -86,8 +92,8 @@ class Config:
     REWARD_MAX = 1
 
     # Max size of the queue
-    MAX_QUEUE_SIZE = 100
-    PREDICTION_BATCH_SIZE = 128
+    MAX_QUEUE_SIZE = 100 #100
+    PREDICTION_BATCH_SIZE = 128 #128
 
     # Input of the DNN
     STACKED_FRAMES = 4
@@ -112,7 +118,7 @@ class Config:
 
     # Dual RMSProp - we found that using a single RMSProp for the two cost function works better and faster
     DUAL_RMSPROP = False
-    
+
     # Gradient clipping
     USE_GRAD_CLIP = False
     GRAD_CLIP_NORM = 40.0 

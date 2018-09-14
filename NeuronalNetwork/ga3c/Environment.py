@@ -39,15 +39,8 @@ from action_mapper import ACTION_SIZE
 
 
 class Environment:
-    def __init__(self):
-        self.game = GameManager(path_to_world=Config.PATH_TO_WORLD,
-                                mode=Config.MODE,
-                                terminate=Config.TERMINATE_AT_END,
-                                visualize=Config.PLAY_MODE,
-                                cluster_size=Config.CLUSTER_SIZE,
-                                use_observation_rotation=Config.USE_OBSERVATION_ROTATION,
-                                observation_rotation_size=Config.OBSERVATION_ROTATION_SIZE
-                                )
+    def __init__(self, id=-1):
+        self.game = GameManager(id)
         self.nb_frames = Config.STACKED_FRAMES
         self.frame_q = Queue(maxsize=self.nb_frames)
         self.previous_state = None

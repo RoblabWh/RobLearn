@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.061871843"
-     inkscape:cx="2068.8384"
-     inkscape:cy="4071.8161"
+     inkscape:cx="-864.64461"
+     inkscape:cy="4039.4912"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -45,7 +45,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -64,8 +64,8 @@
     <circle
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.61737245;stroke-miterlimit:4;stroke-dasharray:none"
        id="path4138"
-       cx="5293.1992"
-       cy="-3012.4917"
+       cx="5551.7983"
+       cy="-3077.1414"
        r="638.60779" />
     <rect
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.60603243;stroke-miterlimit:4;stroke-dasharray:none"
@@ -139,38 +139,11 @@
     <circle
        style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:#000000;stroke-width:1.61320519;stroke-miterlimit:4;stroke-dasharray:none"
        id="path4150-2"
-       cx="3765.8484"
-       cy="-3828.6948"
+       cx="4121.4224"
+       cy="-4151.9438"
        r="1082.5769">
       <title
          id="title4199-7">s e a:-90</title>
-    </circle>
-    <circle
-       style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:#000000;stroke-width:1.55303872;stroke-miterlimit:4;stroke-dasharray:none"
-       id="path4150-0"
-       cx="6650.8447"
-       cy="-1961.933"
-       r="1042.2009">
-      <title
-         id="title4199-9">s e a:180</title>
-    </circle>
-    <circle
-       style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:#000000;stroke-width:2.01030374;stroke-miterlimit:4;stroke-dasharray:none"
-       id="path4150-3"
-       cx="6683.1689"
-       cy="-5517.6699"
-       r="1349.0586">
-      <title
-         id="title4199-6">s e a:180</title>
-    </circle>
-    <circle
-       style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:#000000;stroke-width:1.03560734;stroke-miterlimit:4;stroke-dasharray:none"
-       id="path4150-06"
-       cx="2262.7417"
-       cy="-5978.2998"
-       r="694.9671">
-      <title
-         id="title4199-26">s e a:0</title>
     </circle>
   </g>
 </svg>

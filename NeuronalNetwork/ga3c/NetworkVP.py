@@ -65,9 +65,35 @@ class NetworkVP:
                 
 
     def _create_graph(self):
+        #
+        # self.x = tf.placeholder(
+        #     tf.float32, [None, self.observation_size, self.observation_channels], name='X')
+        # self.x = tf.expand_dims(self.x, -1)
+        # self.y_r = tf.placeholder(tf.float32, [None], name='Yr')
+        #
+        # self.var_beta = tf.placeholder(tf.float32, name='beta', shape=[])
+        # self.var_learning_rate = tf.placeholder(tf.float32, name='lr', shape=[])
+        #
+        # self.global_step = tf.Variable(0, trainable=False, name='step')
+        #
+        # # As implemented in A3C paper
+        # self.n1 = self.conv2d_layer(self.x, 8, 16, 'conv11', strides=[1, 4, 4, 1])
+        # self.n2 = self.conv2d_layer(self.n1, 4, 32, 'conv12', strides=[1, 2, 2, 1])
+        # self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
+        # _input = self.n2
+        #
+        # flatten_input_shape = _input.get_shape()
+        # nb_elements = flatten_input_shape[1] * flatten_input_shape[2] * flatten_input_shape[3]
+        #
+        # self.flat = tf.reshape(_input, shape=[-1, nb_elements._value])
+        # self.d1 = self.dense_layer(self.flat, 256, 'dense1')
+        #
+        # self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
+        # self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)
+
+
         self.x = tf.placeholder(
             tf.float32, [None, self.observation_size, self.observation_channels], name='X')
-        self.x = tf.expand_dims(self.x, -1)
         self.y_r = tf.placeholder(tf.float32, [None], name='Yr')
 
         self.var_beta = tf.placeholder(tf.float32, name='beta', shape=[])
@@ -76,13 +102,13 @@ class NetworkVP:
         self.global_step = tf.Variable(0, trainable=False, name='step')
 
         # As implemented in A3C paper
-        self.n1 = self.conv2d_layer(self.x, 8, 16, 'conv11', strides=[1, 4, 4, 1])
-        self.n2 = self.conv2d_layer(self.n1, 4, 32, 'conv12', strides=[1, 2, 2, 1])
+        self.n1 = self.conv1d_layer(self.x, 9, 16, 'conv11', stride=5)
+        self.n2 = self.conv1d_layer(self.n1, 5, 32, 'conv12', stride=3)
         self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
         _input = self.n2
 
         flatten_input_shape = _input.get_shape()
-        nb_elements = flatten_input_shape[1] * flatten_input_shape[2] * flatten_input_shape[3]
+        nb_elements = flatten_input_shape[1] * flatten_input_shape[2]
 
         self.flat = tf.reshape(_input, shape=[-1, nb_elements._value])
         self.d1 = self.dense_layer(self.flat, 256, 'dense1')
@@ -90,7 +116,9 @@ class NetworkVP:
         self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
         self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)
 
+
         self.logits_p = self.dense_layer(self.d1, self.num_actions, 'logits_p', func=None)
+
         if Config.USE_LOG_SOFTMAX:
             self.softmax_p = tf.nn.softmax(self.logits_p)
             self.log_softmax_p = tf.nn.log_softmax(self.logits_p)
@@ -206,6 +234,24 @@ class NetworkVP:
             b = tf.get_variable('b', shape=[out_dim], initializer=b_init)
 
             output = tf.nn.conv2d(input, w, strides=strides, padding='SAME') + b
+            if func is not None:
+                output = func(output)
+
+        return output
+
+    def conv1d_layer(self, input, filter_size, out_dim, name, stride, func=tf.nn.relu):
+        in_dim = input.get_shape().as_list()[-1]
+        d = 1.0 / np.sqrt(filter_size  * in_dim)
+        with tf.variable_scope(name):
+            w_init = tf.random_uniform_initializer(-d, d)
+            b_init = tf.random_uniform_initializer(-d, d)
+            w = tf.get_variable('w',
+                                shape=[filter_size, in_dim, out_dim],
+                                dtype=tf.float32,
+                                initializer=w_init)
+            b = tf.get_variable('b', shape=[out_dim], initializer=b_init)
+
+            output = tf.nn.conv1d(input, w, stride=stride, padding='SAME') + b
             if func is not None:
                 output = func(output)
 

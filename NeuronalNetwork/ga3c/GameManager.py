@@ -27,18 +27,26 @@
 from action_mapper import map_action
 from environment.environment import Environment
 
-from environment.environment_fitness import Mode
+from .Config import Config
+
+import time
 
 class GameManager:
-    def __init__(self, path_to_world, mode=Mode.ALL_COMBINATION, terminate=True, visualize=False, cluster_size=1,use_observation_rotation=True, observation_rotation_size=64):
-        self.visualize = visualize
+    def __init__(self, id):
 
-        self.env = Environment(path_to_world)
+        self.visualize = False
 
-        self.env.set_mode(mode=mode, terminate_at_end=terminate)
-        self.env.set_observation_rotation_size(observation_rotation_size)
-        self.env.use_observation_rotation_size(use_observation_rotation)
-        self.env.set_cluster_size(cluster_size)
+        if Config.VISUALIZE and id == 0:
+            self.visualize = True
+        elif Config.PLAY_MODE:
+            self.visualize = True
+
+        self.env = Environment(Config.PATH_TO_WORLD)
+
+        self.env.set_mode(Config.MODE, Config.TERMINATE_AT_END)
+        self.env.set_observation_rotation_size(Config.OBSERVATION_ROTATION_SIZE)
+        self.env.use_observation_rotation_size(Config.USE_OBSERVATION_ROTATION)
+        self.env.set_cluster_size(Config.CLUSTER_SIZE)
 
         self.reset()
 
@@ -48,8 +56,13 @@ class GameManager:
 
     def step(self, action):
         self._update_display()
-        linear, angular = map_action(action)
-        observation, reward, done, info = self.env.step(linear, angular,20)
+        if action is None:
+            observation, reward, done, info = self.env.step(0, 0, 20)
+            reward = 0
+            done = False
+        else:
+            linear, angular = map_action(action)
+            observation, reward, done, info = self.env.step(linear, angular,20)
         return observation, reward, done, info
 
     def _update_display(self):

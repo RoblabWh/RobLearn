@@ -44,7 +44,7 @@ class ProcessAgent(Process):
         self.training_q = training_q
         self.episode_log_q = episode_log_q
 
-        self.env = Environment()
+        self.env = Environment(id)
         self.num_actions = self.env.get_num_actions()
         self.actions = np.arange(self.num_actions)
 
@@ -60,7 +60,8 @@ class ProcessAgent(Process):
             r = np.clip(experiences[t].reward, Config.REWARD_MIN, Config.REWARD_MAX)
             reward_sum = discount_factor * reward_sum + r
             experiences[t].reward = reward_sum
-        return experiences[:-1]
+        #return experiences[:-1]
+        return experiences
 
     def convert_data(self, experiences):
         x_ = np.array([exp.state for exp in experiences])
@@ -90,16 +91,23 @@ class ProcessAgent(Process):
         time_count = 0
         reward_sum = 0.0
 
+        step_iteration = 0
+
         while not done:
             # very first few frames
             if self.env.current_state is None:
-                self.env.step(0)  # 0 == NOOP
+                self.env.step(None)  # 0 == NOOP
                 continue
 
             prediction, value = self.predict(self.env.current_state)
             action = self.select_action(prediction)
             reward, done = self.env.step(action)
             reward_sum += reward
+
+            if Config.MAX_STEP_ITERATION < step_iteration:
+                step_iteration = 0
+                done = True
+
             exp = Experience(self.env.previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
@@ -116,6 +124,7 @@ class ProcessAgent(Process):
                 experiences = [experiences[-1]]
                 reward_sum = 0.0
 
+            step_iteration += 1
             time_count += 1
 
     def run(self):
