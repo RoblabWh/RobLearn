@@ -166,7 +166,6 @@ class FitnessData:
 
         #reward = distance_between_last_step + (1 - distance_robot_to_end / distance_start_to_end) + distance_between_last_step
 
-        reward = 0
         # reward += 10 * max((10 - self._distance_robot_to_end(robot_x, robot_y)) / 10, 0)
         # reward += distance_robot_to_start
         # reward += distance_between_last_step

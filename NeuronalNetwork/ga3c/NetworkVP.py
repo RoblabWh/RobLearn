@@ -223,7 +223,7 @@ class NetworkVP:
 
     def conv2d_layer(self, input, filter_size, out_dim, name, strides, func=tf.nn.relu):
         in_dim = input.get_shape().as_list()[-1]
-        d = 1.0 / np.sqrt(filter_size * filter_size * in_dim)
+        d = 1.0 / np.sqrt(filter_size  * in_dim)
         with tf.variable_scope(name):
             w_init = tf.random_uniform_initializer(-d, d)
             b_init = tf.random_uniform_initializer(-d, d)
@@ -300,6 +300,7 @@ class NetworkVP:
         self.saver.save(self.sess, self._checkpoint_filename(episode))
 
     def load(self):
+        #filename = tf.train.latest_checkpoint(os.path.dirname(self._checkpoint_filename(episode=0)))
         filename = tf.train.latest_checkpoint(os.path.dirname(self._checkpoint_filename(episode=0)))
         if Config.LOAD_EPISODE > 0:
             filename = self._checkpoint_filename(Config.LOAD_EPISODE)
