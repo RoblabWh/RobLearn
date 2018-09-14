@@ -3,9 +3,6 @@
 # import DQNAgent
 import numpy as np
 
-from environment.environment import Environment
-from environment.environment_node_data import Mode
-
 from ga3c.NetworkVP import NetworkVP
 from ga3c.Config import Config
 
@@ -18,7 +15,7 @@ STATE_SIZE = 1081
 
 class ActionGetter:
 
-    def __init__(self, state_size, action_size):
+    def __init__(self):
         # self.agent = DQNAgent(STATE_SIZE, ACTION_SIZE)
         # self.agent.load("./save/" + NET_TO_LOAD + ".h5")
 
