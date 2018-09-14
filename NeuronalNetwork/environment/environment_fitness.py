@@ -152,9 +152,9 @@ class FitnessData:
 
         #distance_start_to_end = self.__distance_start_to_end()
         distance_robot_to_end = self._distance_robot_to_end(robot_x, robot_y)
+        distance_robot_to_start = self._distance_robot_to_start(robot_x, robot_y)
+        distance_between_last_step = self._distance_between_last_step(robot_x, robot_y)
         distance_robot_to_end_last = self._distance_robot_to_end(self._robot_x_last, self._robot_y_last)
-        #distance_between_last_step = self.__distance_between_last_step(robot_x, robot_y)
-
         distance_robot_to_end_diff = distance_robot_to_end_last - distance_robot_to_end;
 
         if distance_robot_to_end_diff < 0:
@@ -166,9 +166,13 @@ class FitnessData:
 
         #reward = distance_between_last_step + (1 - distance_robot_to_end / distance_start_to_end) + distance_between_last_step
 
+        # reward = 0
+        # reward += 10 * max((10 - self._distance_robot_to_end(robot_x, robot_y)) / 10, 0)
+        # reward += distance_robot_to_start
+        # reward += distance_between_last_step
+        # reward -= distance_robot_to_end
 
         reward += (math.pi - math.fabs(self._difference_two_angles(robot_orientation, self._orientation_robot_to_end(robot_x, robot_y)))) / math.pi
-        reward = reward
         #reward += max((5 - self._distance_robot_to_end(robot_x, robot_y)) / 5, 0)
         #reward = 0
 
@@ -179,14 +183,28 @@ class FitnessData:
             reward = 100
             done = self._handle_terminate_at_end()
         # else:
-        #     # reward = 1
-        #     reward = -1
+        # #     # reward = 1
+        # #     reward = -1
+        # #     # reward = 0
 
         self._robot_x_last = robot_x
         self._robot_y_last = robot_y
         self._robot_orientation_last = robot_orientation
 
         return reward, done
+
+    def _distance_robot_to_start(self, robot_x: float, robot_y: float) -> float:
+        """
+        Calculate the distance between the robot position to the end node.
+        :param robot_x: Robot position x.
+        :param robot_y: Robot position y.
+        :return: Distance between robot and end node.
+        """
+        return self._distance(
+            robot_x,
+            robot_y,
+            self._node_data.get_node_start().x(),
+            self._node_data.get_node_start().y())
 
     def get_robot_start(self):
         """

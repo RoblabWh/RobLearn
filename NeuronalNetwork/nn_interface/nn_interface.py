@@ -8,6 +8,9 @@ import time
 
 import random
 
+import action_getter
+
+
 class NN_Interface:
     def __init__(self):
         self._is_initialised = False
@@ -115,22 +118,35 @@ class NN_Interface:
 
         return observation
 
+
 def main():
     nn_interface = NN_Interface()
     nn_interface.init()
+
+    ag = ActionGetter()
+
+    observations = []
 
     while True:
         # Get the observation from the laserscan
         observation = nn_interface.receive_observation()
 
-        # TODO: Get the action from observation
-        # NN get action
+        if len(observations) < 4:
+            observations.append(observation)
+        else:
+            observations[1] = observations[2]
+            observations[2] = observations[3]
+            observations[3] = observations[4]
+            observations[4] = observation
 
-        # Send the action to the robot
-        nn_interface.send_action(random.uniform(0.0, 0.5), random.uniform(-1, 1))
+            # TODO: Get the action from observation
+            # NN get action
+            # linear, angular = ag.act(observation)
+            linear, angular = ag.get_action(observation[1], observation[2], observation[3], observation[4])
 
-
-
+            # Send the action to the robot
+            # nn_interface.send_action(random.uniform(0.0, 0.5), random.uniform(-1, 1))
+            nn_interface.send_action(linear, angular)
 
 
 if __name__ == '__main__':

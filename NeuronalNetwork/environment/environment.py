@@ -149,6 +149,9 @@ class Environment:
         else:
             observation = self._get_observation_min_clustered()
 
+        # observation = self._classify(observation)  # Franzi quatsch
+        # reward += 5 * observation[int(len(observation) / 2)]  # mehr Franzi quatsch
+
         if self._observation_rotation_use:
             not_set = True
 
@@ -166,6 +169,32 @@ class Environment:
                 angle_sum += angle_step_size
 
         return observation, reward, done, ""
+
+    def _classify(self, observation):
+        for i in range(len(observation)):
+            if observation[i] < 0.1:
+                observation[i] = 1
+            elif observation[i] < 0.2:
+                observation[i] = 2
+            elif observation[i] < 0.3:
+                observation[i] = 3
+            elif observation[i] < 0.4:
+                observation[i] = 4
+            elif observation[i] < 0.5:
+                observation[i] = 5
+            elif observation[i] < 0.6:
+                observation[i] = 6
+            elif observation[i] < 0.7:
+                observation[i] = 7
+            elif observation[i] < 0.8:
+                observation[i] = 8
+            elif observation[i] < 0.9:
+                observation[i] = 9
+            else:
+                observation[i] = 10
+
+        return observation
+
 
     def reset(self):
         """
