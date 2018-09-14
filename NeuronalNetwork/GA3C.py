@@ -30,7 +30,7 @@ import warnings
 if sys.version_info < (3,0):
     warnings.warn("Optimized for Python3. Performance may suffer under Python2.", Warning)
 
-import gym
+#import gym
 
 from ga3c.Config import Config
 from ga3c.Server import Server
@@ -53,7 +53,7 @@ if Config.PLAY_MODE:
     Config.TRAIN_MODELS = False
     Config.SAVE_MODELS = False
 
-gym.undo_logger_setup()
+#gym.undo_logger_setup()
 
 # Start main program
 Server().main()
