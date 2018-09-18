@@ -46,7 +46,7 @@ class Config:
     # use observation rotation vector
     USE_OBSERVATION_ROTATION=True
     # Observation rotation vector size
-    OBSERVATION_ROTATION_SIZE=32
+    OBSERVATION_ROTATION_SIZE=128
 
 
     # Visualize for training
