@@ -31,17 +31,20 @@ from .Config import Config
 
 import time
 
+
 class GameManager:
     def __init__(self, id):
 
         self.visualize = False
 
-        if Config.VISUALIZE and id == 0:
+        if Config.VISUALIZE and int(id / len(Config.PATH_TO_WORLD)) == 0:
             self.visualize = True
         elif Config.PLAY_MODE:
             self.visualize = True
 
-        self.env = Environment(Config.PATH_TO_WORLD)
+        world_name = Config.PATH_TO_WORLD[id % len(Config.PATH_TO_WORLD)]
+        self.env = Environment(world_name)
+        print("Env {} for Agent {} started.".format(world_name, id))
 
         self.env.set_mode(Config.MODE, Config.TERMINATE_AT_END)
         self.env.set_observation_rotation_size(Config.OBSERVATION_ROTATION_SIZE)

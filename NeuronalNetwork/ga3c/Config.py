@@ -26,13 +26,17 @@
 
 from environment.environment_fitness import Mode
 
+
 class Config:
 
     #########################################################################
     # Environment configuration
 
     # Path of the world
-    PATH_TO_WORLD = "../Simulation2d/world/room"
+    PATH_TO_WORLD = ["../Simulation2d/world/room"]
+    # Use this for multiple Environments in parallel
+    # PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms"]
+
     # Mode
     MODE=Mode.ALL_RANDOM
     # Terminate the simulation
