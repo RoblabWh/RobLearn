@@ -9,6 +9,7 @@ import rospy
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Joy
+from std_msgs import String
 
 
 class NNInterfaceNode:
@@ -19,6 +20,7 @@ class NNInterfaceNode:
         self._is_initialised = False
         self._nn_control = False
         self._use_observation_rotation = True
+        self._map_reset = False
 
         self._ip_address_node = "127.0.0.1"
         self._port_node = 55555
@@ -34,6 +36,7 @@ class NNInterfaceNode:
         self._observation_rotation_size = 128
 
         self._publisher_cmd_vel = None
+        self._publisher_cmd_map = None
       
         self._laserscan_counter = 0
         self._laserscan_counter_max = 20
@@ -56,6 +59,7 @@ class NNInterfaceNode:
         # init ros
         rospy.init_node("nn_interface_node")
         self._publisher_cmd_vel = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=1)
+        self._publisher_cmd_map = rospy.Publisher('/syscommand', String, queue_size=1)
         rospy.Subscriber("/scan", LaserScan, self._callback_laserscan)
         rospy.Subscriber("/joy", Joy, self._callback_joy)
         rospy.Subscriber("/move_base_simple/goal", PoseStamped, self._callback_goal)
@@ -228,6 +232,12 @@ class NNInterfaceNode:
             self._joy_angular = 1.5 * data.axes[2]
             self._nn_control = False
 
+        if data.buttons[3] and not self._map_reset:
+            self._publish_map_reset()
+            self._map_reset = True
+        else:
+            self._map_reset = False
+
     def _callback_goal(self, data):
         """
         Callback of the goal subscriber from rviz,
@@ -262,6 +272,18 @@ class NNInterfaceNode:
         msg_twist.angular.z = float(angular_velocity)
 
         self._publisher_cmd_vel.publish(msg_twist)
+
+    def _publish_map_reset(self):
+        """
+        Published the syscommand reset to reset the hector map
+        :return:
+        """
+
+        msg_string = String
+
+        msg_string.data = "reset"
+
+        self._publisher_cmd_map.publish(msg_string)
 
 
     def _send_observation(self, observation):
