@@ -18,7 +18,7 @@ class NNInterfaceNode:
     def __init__(self):
         self._is_initialised = False
         self._nn_control = False
-        self._use_observation_rotation = False
+        self._use_observation_rotation = True
 
         self._ip_address_node = "127.0.0.1"
         self._port_node = 55555
@@ -31,7 +31,7 @@ class NNInterfaceNode:
         self._datagram_index = 0
         self._datagram_size_slice = 256 # * 4 byte size of the packet
 
-        self._observation_rotation_size = 8
+        self._observation_rotation_size = 128
 
         self._publisher_cmd_vel = None
       
@@ -43,10 +43,6 @@ class NNInterfaceNode:
 
         self._joy_linear = 0
         self._joy_angular = 0
-
-
-
-
 
     def init(self):
         """
@@ -210,8 +206,8 @@ class NNInterfaceNode:
                 else:
                     observation += self._get_observation_rotation()
 
-
-            self._send_observation(observation)
+            if successful:
+                self._send_observation(observation)
 
             self._laserscan_counter = 0
 
@@ -276,6 +272,7 @@ class NNInterfaceNode:
         """
         index_slice = 0
         size_data = len(observation)
+
         number_of_packets = size_data / self._datagram_size_slice
 
         if size_data % self._datagram_size_slice!= 0:
@@ -285,7 +282,7 @@ class NNInterfaceNode:
             size_slice = self._datagram_size_slice
 
             if size_data < size_slice * (index_packet + 1) :
-                size_slice = size_slice * (index_packet + 1) - size_data
+                size_slice = size_data - size_slice * index_packet
 
             observation_slice = observation[index_slice: (index_slice + size_slice)]
 
@@ -351,11 +348,11 @@ def main():
     nn_interface_node = NNInterfaceNode()
     nn_interface_node.set_use_observation_rotation(True)
     
+    #nn_interface_node.set_address_nn("172.16.35.98")
+    #nn_interface_node.set_address_node("172.16.35.99")
+
     nn_interface_node.init()
     nn_interface_node.run()
-
-
-
 
 
 if __name__ == '__main__':

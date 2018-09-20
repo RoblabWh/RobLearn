@@ -15,6 +15,10 @@ from nn_interface.nn_interface import NN_Interface
 
 def main():
     nn_interface = NN_Interface()
+
+    #nn_interface.set_address_nn("172.16.35.98")
+    #nn_interface.set_address_node("172.16.35.99")
+
     nn_interface.init()
 
     ag = ActionGetter()
@@ -25,13 +29,20 @@ def main():
         # Get the observation from the laserscan
         observation = nn_interface.receive_observation()
 
+
         if len(observations) < 4:
             observations.append(observation)
         else:
-            observations[0] = observations[1]
-            observations[1] = observations[2]
-            observations[2] = observations[3]
-            observations[3] = observation
+            observations[3] = observations[2]
+            observations[2] = observations[1]
+            observations[1] = observations[0]
+            observations[0] = observation
+            #observations[0] = observations[1]
+            #observations[1] = observations[2]
+            #observations[2] = observations[3]
+            #observations[3] = observation
+
+
 
             # TODO: Get the action from observation
             # NN get action
