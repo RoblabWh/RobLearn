@@ -9,7 +9,7 @@ import rospy
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Joy
-from std_msgs import String
+from std_msgs.msg import String
 
 
 class NNInterfaceNode:
@@ -278,8 +278,7 @@ class NNInterfaceNode:
         Published the syscommand reset to reset the hector map
         :return:
         """
-
-        msg_string = String
+        msg_string = String()
 
         msg_string.data = "reset"
 

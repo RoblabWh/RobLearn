@@ -33,14 +33,14 @@ def main():
         if len(observations) < 4:
             observations.append(observation)
         else:
-            observations[3] = observations[2]
-            observations[2] = observations[1]
-            observations[1] = observations[0]
-            observations[0] = observation
-            #observations[0] = observations[1]
-            #observations[1] = observations[2]
-            #observations[2] = observations[3]
-            #observations[3] = observation
+            #observations[3] = observations[2]
+            #observations[2] = observations[1]
+            #observations[1] = observations[0]
+            #observations[0] = observation
+            observations[0] = observations[1]
+            observations[1] = observations[2]
+            observations[2] = observations[3]
+            observations[3] = observation
 
 
 
