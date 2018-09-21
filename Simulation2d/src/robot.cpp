@@ -6,7 +6,7 @@ Robot::Robot()
 
     this->collision_radius = 0.175f;
 
-    this->max_velocity = 3.0f;
+    this->max_velocity = 1.0f;
 }
 
 Robot::Robot(Eigen::Vector2f position, float orientation, float collision_radius, float max_velocity)

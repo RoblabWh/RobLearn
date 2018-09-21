@@ -9,7 +9,7 @@ from ga3c.Config import Config
 import action_mapper
 
 NET_TO_LOAD = "dqn_3_2500"
-ACTION_SIZE = 5
+ACTION_SIZE = 7
 STATE_SIZE = 1081
 
 

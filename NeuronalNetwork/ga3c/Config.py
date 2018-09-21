@@ -33,7 +33,7 @@ class Config:
     # Environment configuration
 
     # Path of the world
-    PATH_TO_WORLD = ["../Simulation2d/world/room"]
+    PATH_TO_WORLD = ["../Simulation2d/world/roblab"]
     # Use this for multiple Environments in parallel
     # PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms"]
 
@@ -50,7 +50,7 @@ class Config:
 
 
     # Visualize for training
-    VISUALIZE = False
+    VISUALIZE = True
     # Enable to see the trained agent in action
     PLAY_MODE = False
     # Enable to train
@@ -67,9 +67,9 @@ class Config:
     # Number of Agents
     AGENTS = 32#32
     # Number of Predictors
-    PREDICTORS = 3 #2
+    PREDICTORS = 2 #2
     # Number of Trainers
-    TRAINERS = 3 #2
+    TRAINERS = 2 #2
 
     # Device
     DEVICE = 'gpu:0'
@@ -83,7 +83,7 @@ class Config:
     # Algorithm parameters
 
     # Max step Iteration -> if read the environment ist done. 0 for endless.
-    MAX_STEP_ITERATION = 200
+    MAX_STEP_ITERATION = 300
 
     # Discount factor
     DISCOUNT = 0.99
