@@ -7,7 +7,7 @@ import math
 
 import rospy
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
-from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped
+from geometry_msgs.msg import Twist, TwistStamped, PoseStamped, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Joy
 from std_msgs.msg import String
 
@@ -37,7 +37,7 @@ class NNInterfaceNode:
 
         self._publisher_cmd_vel = None
         self._publisher_cmd_map = None
-        self._publisher_pose_rotation = None
+        self._publisher_action_twist = None
       
         self._laserscan_counter = 0
         self._laserscan_counter_max = 20
@@ -61,7 +61,7 @@ class NNInterfaceNode:
         rospy.init_node("nn_interface_node")
         self._publisher_cmd_vel = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=1)
         self._publisher_cmd_map = rospy.Publisher('/syscommand', String, queue_size=1)
-        self._publisher_pose_rotation = rospy.Publisher('/pose_rotation', PoseStamped, queue_size=1)
+        self._publisher_action_twist = rospy.Publisher('/action_twist', TwistStamped, queue_size=1)
         rospy.Subscriber("/scan", LaserScan, self._callback_laserscan)
         rospy.Subscriber("/joy", Joy, self._callback_joy)
         rospy.Subscriber("/move_base_simple/goal", PoseStamped, self._callback_goal)
@@ -212,8 +212,6 @@ class NNInterfaceNode:
                 else:
                     observation += self._get_observation_rotation()
 
-                    self._publish_pose_rotation(self._get_angle_from_robot_to_goal())
-
             if successful:
                 self._send_observation(observation)
 
@@ -287,25 +285,28 @@ class NNInterfaceNode:
 
         self._publisher_cmd_map.publish(msg_string)
 
-    def _publish_pose_rotation(self, angle):
+    def _publish_action_twist(self, linear, angular):
         """
         Published the pose orientation to the target
         :param angle: Angle difference from target and robot orientation
         :return:
         """
-        q = quaternion_from_euler(0,0,angle)
+        q = quaternion_from_euler(0,0,angular)
 
-        msg_pose_rotation = PoseStamped()
+        msg_twist = TwistStamped()
 
-        msg_pose_rotation.header.frame_id = "/base_footprint"
-        msg_pose_rotation.header.stamp = rospy.get_rostime()
+        msg_twist.header.frame_id = "/base_footprint"
+        msg_twist.header.stamp = rospy.get_rostime()
 
-        msg_pose_rotation.pose.orientation.x = q[0]
-        msg_pose_rotation.pose.orientation.y = q[1]
-        msg_pose_rotation.pose.orientation.z = q[2]
-        msg_pose_rotation.pose.orientation.w = q[3]
+        msg_twist.twist.linear.x = linear
+        msg_twist.twist.linear.y = 0
+        msg_twist.twist.linear.z = 0
 
-        self._publisher_pose_rotation.publish(msg_pose_rotation)
+        msg_twist.twist.angular.x = 0
+        msg_twist.twist.angular.y = 0
+        msg_twist.twist.angular.z = angular
+
+        self._publisher_action_twist.publish(msg_twist)
 
 
     def _send_observation(self, observation):
@@ -369,6 +370,7 @@ class NNInterfaceNode:
                     self._publish_twist(0.0, 0.0)
             else:
                 self._publish_twist(self._joy_linear, self._joy_angular)
+                self._publish_action_twist(self._joy_linear, self._joy_angular)
                 rospy.sleep(0.01)
 
 
@@ -393,8 +395,8 @@ def main():
     nn_interface_node = NNInterfaceNode()
     nn_interface_node.set_use_observation_rotation(True)
     
-    nn_interface_node.set_address_nn("172.16.35.98")
-    nn_interface_node.set_address_node("172.16.35.99")
+    #nn_interface_node.set_address_nn("172.16.35.98")
+    #nn_interface_node.set_address_node("172.16.35.99")
 
     nn_interface_node.init()
     nn_interface_node.run()

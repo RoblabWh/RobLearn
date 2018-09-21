@@ -16,8 +16,8 @@ from nn_interface.nn_interface import NN_Interface
 def main():
     nn_interface = NN_Interface()
 
-    #nn_interface.set_address_nn("172.16.35.98")
-    #nn_interface.set_address_node("172.16.35.99")
+    nn_interface.set_address_nn("172.16.35.98")
+    nn_interface.set_address_node("172.16.35.99")
 
     nn_interface.init()
 
