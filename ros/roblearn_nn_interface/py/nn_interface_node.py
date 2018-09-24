@@ -6,9 +6,10 @@ import sys
 import math
 
 import rospy
-from tf.transformations import euler_from_quaternion
-from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from geometry_msgs.msg import Twist, TwistStamped, PoseStamped, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Joy
+from std_msgs.msg import String
 
 
 class NNInterfaceNode:
@@ -18,7 +19,8 @@ class NNInterfaceNode:
     def __init__(self):
         self._is_initialised = False
         self._nn_control = False
-        self._use_observation_rotation = False
+        self._use_observation_rotation = True
+        self._map_reset = False
 
         self._ip_address_node = "127.0.0.1"
         self._port_node = 55555
@@ -31,9 +33,11 @@ class NNInterfaceNode:
         self._datagram_index = 0
         self._datagram_size_slice = 256 # * 4 byte size of the packet
 
-        self._observation_rotation_size = 8
+        self._observation_rotation_size = 128
 
         self._publisher_cmd_vel = None
+        self._publisher_cmd_map = None
+        self._publisher_action_twist = None
       
         self._laserscan_counter = 0
         self._laserscan_counter_max = 20
@@ -43,10 +47,6 @@ class NNInterfaceNode:
 
         self._joy_linear = 0
         self._joy_angular = 0
-
-
-
-
 
     def init(self):
         """
@@ -60,6 +60,8 @@ class NNInterfaceNode:
         # init ros
         rospy.init_node("nn_interface_node")
         self._publisher_cmd_vel = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=1)
+        self._publisher_cmd_map = rospy.Publisher('/syscommand', String, queue_size=1)
+        self._publisher_action_twist = rospy.Publisher('/action_twist', TwistStamped, queue_size=1)
         rospy.Subscriber("/scan", LaserScan, self._callback_laserscan)
         rospy.Subscriber("/joy", Joy, self._callback_joy)
         rospy.Subscriber("/move_base_simple/goal", PoseStamped, self._callback_goal)
@@ -210,8 +212,8 @@ class NNInterfaceNode:
                 else:
                     observation += self._get_observation_rotation()
 
-
-            self._send_observation(observation)
+            if successful:
+                self._send_observation(observation)
 
             self._laserscan_counter = 0
 
@@ -232,6 +234,12 @@ class NNInterfaceNode:
             self._joy_angular = 1.5 * data.axes[2]
             self._nn_control = False
 
+        if data.buttons[3] and not self._map_reset:
+            self._publish_map_reset()
+            self._map_reset = True
+        else:
+            self._map_reset = False
+
     def _callback_goal(self, data):
         """
         Callback of the goal subscriber from rviz,
@@ -247,7 +255,6 @@ class NNInterfaceNode:
         :return:
         """
         self._pose_robot = data
-        
 
     def _publish_twist(self, linear_velocity, angular_velocity):
         """
@@ -267,6 +274,40 @@ class NNInterfaceNode:
 
         self._publisher_cmd_vel.publish(msg_twist)
 
+    def _publish_map_reset(self):
+        """
+        Published the syscommand reset to reset the hector map
+        :return:
+        """
+        msg_string = String()
+
+        msg_string.data = "reset"
+
+        self._publisher_cmd_map.publish(msg_string)
+
+    def _publish_action_twist(self, linear, angular):
+        """
+        Published the pose orientation to the target
+        :param angle: Angle difference from target and robot orientation
+        :return:
+        """
+        q = quaternion_from_euler(0,0,angular)
+
+        msg_twist = TwistStamped()
+
+        msg_twist.header.frame_id = "/base_footprint"
+        msg_twist.header.stamp = rospy.get_rostime()
+
+        msg_twist.twist.linear.x = linear
+        msg_twist.twist.linear.y = 0
+        msg_twist.twist.linear.z = 0
+
+        msg_twist.twist.angular.x = 0
+        msg_twist.twist.angular.y = 0
+        msg_twist.twist.angular.z = angular
+
+        self._publisher_action_twist.publish(msg_twist)
+
 
     def _send_observation(self, observation):
         """
@@ -276,6 +317,7 @@ class NNInterfaceNode:
         """
         index_slice = 0
         size_data = len(observation)
+
         number_of_packets = size_data / self._datagram_size_slice
 
         if size_data % self._datagram_size_slice!= 0:
@@ -285,7 +327,7 @@ class NNInterfaceNode:
             size_slice = self._datagram_size_slice
 
             if size_data < size_slice * (index_packet + 1) :
-                size_slice = size_slice * (index_packet + 1) - size_data
+                size_slice = size_data - size_slice * index_packet
 
             observation_slice = observation[index_slice: (index_slice + size_slice)]
 
@@ -328,6 +370,7 @@ class NNInterfaceNode:
                     self._publish_twist(0.0, 0.0)
             else:
                 self._publish_twist(self._joy_linear, self._joy_angular)
+                self._publish_action_twist(self._joy_linear, self._joy_angular)
                 rospy.sleep(0.01)
 
 
@@ -347,15 +390,16 @@ class NNInterfaceNode:
         t.join()
 
 
+
 def main():
     nn_interface_node = NNInterfaceNode()
     nn_interface_node.set_use_observation_rotation(True)
     
+    #nn_interface_node.set_address_nn("172.16.35.98")
+    #nn_interface_node.set_address_node("172.16.35.99")
+
     nn_interface_node.init()
     nn_interface_node.run()
-
-
-
 
 
 if __name__ == '__main__':

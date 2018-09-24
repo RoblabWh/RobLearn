@@ -171,15 +171,15 @@ class FitnessData:
         # reward += distance_between_last_step
         # reward -= distance_robot_to_end
 
-        reward += (math.pi - math.fabs(self._difference_two_angles(robot_orientation, self._orientation_robot_to_end(robot_x, robot_y)))) / math.pi
+        reward += ((math.pi - math.fabs(self._difference_two_angles(robot_orientation, self._orientation_robot_to_end(robot_x, robot_y)))) / math.pi) * 1
         #reward += max((5 - self._distance_robot_to_end(robot_x, robot_y)) / 5, 0)
         #reward = 0
 
         if env_done:
-            reward = -100 #- distance_robot_to_end / distance_start_to_end * 100
+            reward = -10 #- distance_robot_to_end / distance_start_to_end * 100
             done = True
         elif distance_robot_to_end < self._node_data.get_node_end().radius():
-            reward = 100
+            reward = 10
             done = self._handle_terminate_at_end()
         # else:
         # #     # reward = 1

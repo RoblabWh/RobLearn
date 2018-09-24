@@ -9,7 +9,7 @@ from ga3c.Config import Config
 import action_mapper
 
 NET_TO_LOAD = "dqn_3_2500"
-ACTION_SIZE = 5
+ACTION_SIZE = 7
 STATE_SIZE = 1081
 
 
@@ -29,18 +29,20 @@ class ActionGetter:
         # action = self.agent.act(state1)
         # linear, angular = action_mapper.map_action(action)
 
-        state = [state1, state2, state3, state4]
+        state = np.array([state1, state2, state3, state4])
 
-        state = np.reshape(state, [Config.OBSERVATION_SIZE, Config.STACKED_FRAMES])
+        state = np.transpose(state)
 
         action = self.model.predict_single(state)
 
         linear, angular = action_mapper.map_action(np.argmax(action))
 
+        print(linear, angular)
+
         return linear, angular
 
 if __name__ == '__main__':
-    ag = ActionGetter(STATE_SIZE, ACTION_SIZE)
+    ag = ActionGetter()
 
     test1 = np.zeros(Config.OBSERVATION_SIZE)
     test2 = np.zeros(Config.OBSERVATION_SIZE)

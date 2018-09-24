@@ -11,6 +11,9 @@ Simulation2D::Simulation2D()
     collision = false;
 }
 
+/**
+ * Old function which simulate every laserscan.
+ *
 void Simulation2D::step(const float linear_velocity, const float angular_velocity, int skip_number)
 {
     if (skip_number < 1)
@@ -43,8 +46,36 @@ void Simulation2D::step(const float linear_velocity, const float angular_velocit
             time_step_check_laser_next += time_step_check_laser;
             time_step -= time_step_diff;
         }
-
     }
+}
+*/
+
+void Simulation2D::step(const float linear_velocity, const float angular_velocity, int skip_number)
+{
+    if (skip_number < 1)
+    {
+        skip_number = 1;
+    }
+
+    float time_step_end = this->time_step_check_laser * skip_number;
+    float time_step = 0.0f;
+
+    while (time_step < time_step_end && !collision)
+    {
+        robot.move(linear_velocity * time_step_check_collision, angular_velocity * time_step_check_collision);
+        collision = data.calculate_robot_collision(robot);
+
+        time_step += time_step_check_collision;
+    }
+
+    if(!collision)
+    {
+        float time_step_to_laserscan = time_step - time_step_end;
+        robot.move(linear_velocity * time_step_to_laserscan, angular_velocity * time_step_to_laserscan);
+    }
+
+
+    data.calculate_lidar_collision(robot);
 }
 
 void Simulation2D::calculate_iteration()
