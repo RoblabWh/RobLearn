@@ -200,10 +200,10 @@ class FitnessData:
         #reward = 0
 
         if env_done:
-            reward = -200 #- distance_robot_to_end / distance_start_to_end * 100
+            reward = -20 #- distance_robot_to_end / distance_start_to_end * 100
             done = True
         elif distance_robot_to_end < self._node_data.get_node_end().radius():
-            reward = 15
+            reward = 10
             done = self._handle_terminate_at_end()
         # else:
         # #     # reward = 1
