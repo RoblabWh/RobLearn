@@ -147,40 +147,38 @@ class FitnessData:
         :return: Reward, done.
         """
         done = False
-        reward = -0.7
+        reward = -1.0
 
         distance_start_to_end = self._distance_start_to_end()
+        
         distance_robot_to_end = self._distance_robot_to_end(robot_x, robot_y)
         distance_robot_to_start = self._distance_robot_to_start(robot_x, robot_y)
+        
         distance_between_last_step = self._distance_between_last_step(robot_x, robot_y)
+        
         distance_robot_to_end_last = self._distance_robot_to_end(self._robot_x_last, self._robot_y_last)
         distance_robot_to_end_diff = distance_robot_to_end_last - distance_robot_to_end;
-        distance_robot_to_end_diff_abs = abs(distance_robot_to_end_diff)
-
-        last_step_angle_robot_to_end = math.pi - abs(math.atan2(distance_robot_to_end_last,distance_between_last_step))
+        
+        distance_robot_to_end_diff_abs = abs(distance_robot_to_end_diff)*5
 
         diff_rotation_to_end_last = math.fabs(self.angle_difference_from_robot_to_end(self._robot_x_last, self._robot_y_last,self._robot_orientation_last))
-
         diff_rotation_to_end = math.fabs(self.angle_difference_from_robot_to_end(robot_x, robot_y,robot_orientation))
 
-        if diff_rotation_to_end > diff_rotation_to_end_last:
+        diff_rotations = math.fabs(diff_rotation_to_end - diff_rotation_to_end_last)*5
 
-            diff_rotations = diff_rotation_to_end - diff_rotation_to_end_last
-            diff_rotations *= -1.7
+        if diff_rotation_to_end > diff_rotation_to_end_last:
+            diff_rotations *= -2.0
         else:
-            diff_rotations = diff_rotation_to_end_last - diff_rotation_to_end
             diff_rotations *= 1.3
 
         if distance_robot_to_end > sqrt(distance_between_last_step**2 + distance_robot_to_end_last**2):
 
-            distance_robot_to_end_diff_abs *= -1.7
-            last_step_angle_robot_to_end *= -1.7
+            distance_robot_to_end_diff_abs *= -2.0
+
 
         else:
 
             distance_robot_to_end_diff_abs *= 1.3
-            last_step_angle_robot_to_end = math.pi - last_step_angle_robot_to_end
-            last_step_angle_robot_to_end *= 1.3
 
         reward += distance_robot_to_end_diff_abs
 
