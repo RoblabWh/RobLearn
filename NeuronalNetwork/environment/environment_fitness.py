@@ -181,9 +181,6 @@ class FitnessData:
             distance_robot_to_end_diff_abs *= 1.3
 
         reward += distance_robot_to_end_diff_abs
-
-        reward += last_step_angle_robot_to_end
-
         reward += diff_rotations
 
         #reward = distance_between_last_step + (1 - distance_robot_to_end / distance_start_to_end) + distance_between_last_step
