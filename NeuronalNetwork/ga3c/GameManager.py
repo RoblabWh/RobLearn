@@ -26,6 +26,8 @@
 
 from action_mapper import map_action
 from environment.environment import Environment
+import numpy as np
+from .Grid_map import GridMap
 
 from .Config import Config
 
@@ -55,18 +57,31 @@ class GameManager:
 
     def reset(self):
         observation, _, _, _ = self.env.reset()
-        return observation
+        input_laser,rotation = self.process_observation(observation)
+        map = GridMap(input_laser)
+        obs = np.array([[map.States_map,map.Reward_map],[rotation]])
+        return obs
+
 
     def step(self, action):
         self._update_display()
         if action is None:
             observation, reward, done, info = self.env.step(0, 0, 20)
+
+            input_laser, rotation = self.process_observation(observation)
+            map = GridMap(input_laser)
+            obs = np.array([[map.States_map, map.Reward_map], [rotation]])
             reward = 0
             done = False
         else:
+
             linear, angular = map_action(action)
             observation, reward, done, info = self.env.step(linear, angular,20)
-        return observation, reward, done, info
+            input_laser, rotation = self.process_observation(observation)
+            map = GridMap(input_laser)
+            obs = np.array([[map.States_map, map.Reward_map], [rotation]])
+
+        return obs, reward, done, info
 
     def _update_display(self):
         if self.visualize:
@@ -74,3 +89,7 @@ class GameManager:
 
     def observation_size(self):
         return self.env.observation_size()
+    def process_observation(self,observation):
+        laser_scan= np.array(observation[:Config.OBSERVATION_SIZE])
+        oriontaion=np.array(observation[Config.OBSERVATION_SIZE:])
+        return laser_scan, oriontaion

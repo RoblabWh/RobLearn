@@ -43,19 +43,25 @@ class ThreadPredictor(Thread):
     def run(self):
         ids = np.zeros(Config.PREDICTION_BATCH_SIZE, dtype=np.uint16)
         states = np.zeros(
-            (Config.PREDICTION_BATCH_SIZE, Config.OBSERVATION_SIZE, Config.STACKED_FRAMES),
+            (Config.PREDICTION_BATCH_SIZE, Config.OBSERVATION_SIZE,Config.OBSERVATION_SIZE, 2*Config.STACKED_FRAMES),
+            dtype=np.float32)
+        rotations = np.zeros(
+            (Config.PREDICTION_BATCH_SIZE, Config.OBSERVATION_ROTATION_SIZE,Config.STACKED_FRAMES),
             dtype=np.float32)
 
         while not self.exit_flag:
-            ids[0], states[0] = self.server.prediction_q.get()
+            i, x = self.server.prediction_q.get()
+            ids[0], states[0],rotations[0] = i,x[0],x[1]
 
             size = 1
             while size < Config.PREDICTION_BATCH_SIZE and not self.server.prediction_q.empty():
-                ids[size], states[size] = self.server.prediction_q.get()
+                i, x = self.server.prediction_q.get()
+                ids[size], states[size], rotations[size] = i, x[0], x[1]
                 size += 1
 
-            batch = states[:size]
-            p, v = self.server.model.predict_p_and_v(batch)
+            state_batch = states[:size]
+            rotation_batch = rotations[:size]
+            p, v = self.server.model.predict_p_and_v([state_batch,rotation_batch])
 
             for i in range(size):
                 if ids[i] < len(self.server.agents):

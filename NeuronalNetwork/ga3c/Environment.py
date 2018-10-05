@@ -37,6 +37,7 @@ from .Config import Config
 from .GameManager import GameManager
 from action_mapper import ACTION_SIZE
 
+from .Grid_map import GridMap
 
 class Environment:
     def __init__(self, id=-1):
@@ -52,10 +53,13 @@ class Environment:
     def _get_current_state(self):
         if not self.frame_q.full():
             return None  # frame queue is not full yet.
-        x_ = np.array(self.frame_q.queue)
+        _maps = np.array([i[0] for i in self.frame_q.queue])
+        _rotations = np.array([i[1] for i in self.frame_q.queue])
+        _maps = np.reshape(_maps,(60,60,2))
+        _rotations = np.reshape(_rotations,(16,1))
         #x_ = np.transpose(x_, [1, 2, 0])  # move channels
-        x_ = np.transpose(x_, [1, 0])  # move channels
-        return x_
+        #x_ = np.transpose(x_, [1, 0])  # move channels
+        return np.array([_maps, _rotations])
 
     def _update_frame_q(self, frame):
         if self.frame_q.full():

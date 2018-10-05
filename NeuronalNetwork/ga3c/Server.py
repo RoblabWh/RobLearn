@@ -30,7 +30,7 @@ import time
 
 from .Config import Config
 from .Environment import Environment
-from .NetworkVP import NetworkVP
+from .NetworkVP_Hsm import NetworkVP_Hsm
 from .ProcessAgent import ProcessAgent
 from .ProcessStats import ProcessStats
 from .ThreadDynamicAdjustment import ThreadDynamicAdjustment
@@ -45,7 +45,7 @@ class Server:
         self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
         self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
 
-        self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME, Environment().get_num_actions())
+        self.model = NetworkVP_Hsm(Config.DEVICE, Config.NETWORK_NAME, Environment().get_num_actions())
         if Config.LOAD_CHECKPOINT:
             self.stats.episode_count.value = self.model.load()
 
@@ -113,6 +113,7 @@ class Server:
 
         while self.stats.episode_count.value < Config.EPISODES:
             step = min(self.stats.episode_count.value, Config.ANNEALING_EPISODE_COUNT - 1)
+
             self.model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
             self.model.beta = Config.BETA_START + beta_multiplier * step
 
@@ -121,7 +122,7 @@ class Server:
                 self.save_model()
                 self.stats.should_save_model.value = 0
 
-            time.sleep(0.01)
+            time.sleep(0.1)
 
         self.dynamic_adjustment.exit_flag = True
         while self.agents:
