@@ -317,10 +317,15 @@ class NetworkVP_Hsm:
         self.sess.run(self.train_op, feed_dict=feed_dict)
 
     def log(self, x, y_r, a):
+        input2D = [i[0] for i in x]
+        rotation = [i[1] for i in x]
+        input2D = np.reshape(input2D, (len(input2D), self.observation_size, self.observation_size, self.observation_channels*2))
+        rotation = np.reshape(rotation, (len(rotation), self.rotation_size, self.observation_channels))
         feed_dict = self.__get_base_feed_dict()
-        feed_dict.update({self.input2D: x[0], self.rotation: x[1], self.y_r: y_r, self.action_index: a})
+        feed_dict.update({self.input2D: input2D, self.rotation: rotation, self.y_r: y_r, self.action_index: a})
         step, summary = self.sess.run([self.global_step, self.summary_op], feed_dict=feed_dict)
         self.log_writer.add_summary(summary, step)
+
 
     def _checkpoint_filename(self, episode):
         return 'checkpoints'+Config.NETWORK_DIR+'/%s_%08d' % (self.model_name, episode)
