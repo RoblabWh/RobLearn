@@ -92,9 +92,9 @@ class NetworkVP_Hsm:
         # self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
         # self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)
 
-        # @todo add  input2D + change observation_size in config
 
-        self.input2D = tf.placeholder(tf.float32, [None, self.observation_size, self.observation_size,
+
+        self.input2D = tf.placeholder(tf.float32, [None, self.observation_size, 100,
                                                    2 * self.observation_channels], name='input2D')
 
         self.rotation = tf.placeholder(
@@ -105,7 +105,7 @@ class NetworkVP_Hsm:
         #    tf.float32, [None, self.observation_size, self.observation_channels], name='X')
         self.y_r = tf.placeholder(tf.float32, [None], name='Yr')
 
-        # @todo add  change observation size + rotation size
+        # @todo   change observation size + rotation size
         # rotation with con1D
         # input with conv2d
         # flattern input and output of conv1d
@@ -114,7 +114,7 @@ class NetworkVP_Hsm:
         self.var_learning_rate = tf.placeholder(tf.float32, name='lr', shape=[])
 
         self.global_step = tf.Variable(0, trainable=False, name='step')
-        # @todo add  flattern conv2d
+        # @todo added  flattern conv2d
 
         # As implemented in A3C paper
 
@@ -124,11 +124,10 @@ class NetworkVP_Hsm:
         _input2D = self.conv2D_2
         flatten_input2D_shape = _input2D.get_shape()
         nb_elements = flatten_input2D_shape[1] * flatten_input2D_shape[2] * flatten_input2D_shape[3]
-
         self.flat2D = tf.reshape(_input2D, shape=[-1, nb_elements._value])
 
-        self.n1 = self.conv1d_layer(self.rotation, 9, 16, 'conv1_1', stride=5)  # @todo statt x =>rotation
-        self.n2 = self.conv1d_layer(self.n1, 5, 32, 'conv1_2', stride=3)
+        self.n1 = self.conv1d_layer(self.rotation, 4, 16, 'conv1_1', stride=1)  # @todo statt x =>rotation
+        self.n2 = self.conv1d_layer(self.n1, 4, 8, 'conv1_2', stride=2)
         self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
 
         _input_rotation = self.n2
@@ -138,7 +137,7 @@ class NetworkVP_Hsm:
         flatten_input_rotation_shape = _input_rotation.get_shape()
         nb_elements = flatten_input_rotation_shape[1] * flatten_input_rotation_shape[2]
 
-        self.flat_rotation = tf.reshape(_input_rotation, shape=[-1, nb_elements._value])
+        self.flat_rotation = tf.reshape(_input_rotation, shape=[-1, nb_elements])
         self.concat = tf.concat([self.flat2D, self.flat_rotation], -1)
         # @todo concat flat2D flat rotation
         self.d1 = self.dense_layer(self.concat, 128, 'dense1')
@@ -310,8 +309,8 @@ class NetworkVP_Hsm:
     def train(self, x, y_r, a, trainer_id):
         input2D = [i[0] for i in x]
         rotation = [i[1] for i in x]
-        input2D = np.reshape(input2D, (len(input2D), 60, 60, 2))
-        rotation = np.reshape(rotation, (len(rotation), 16, 1))
+        input2D = np.reshape(input2D, (len(input2D), self.observation_size, 100, self.observation_channels*2))
+        rotation = np.reshape(rotation, (len(rotation), self.rotation_size, self.observation_channels))
         feed_dict = self.__get_base_feed_dict()
         feed_dict.update({self.input2D: input2D, self.rotation: rotation, self.y_r: y_r, self.action_index: a})
         self.sess.run(self.train_op, feed_dict=feed_dict)
@@ -319,13 +318,12 @@ class NetworkVP_Hsm:
     def log(self, x, y_r, a):
         input2D = [i[0] for i in x]
         rotation = [i[1] for i in x]
-        input2D = np.reshape(input2D, (len(input2D), self.observation_size, self.observation_size, self.observation_channels*2))
+        input2D = np.reshape(input2D, (len(input2D), self.observation_size, 100, self.observation_channels*2))
         rotation = np.reshape(rotation, (len(rotation), self.rotation_size, self.observation_channels))
         feed_dict = self.__get_base_feed_dict()
         feed_dict.update({self.input2D: input2D, self.rotation: rotation, self.y_r: y_r, self.action_index: a})
         step, summary = self.sess.run([self.global_step, self.summary_op], feed_dict=feed_dict)
         self.log_writer.add_summary(summary, step)
-
 
     def _checkpoint_filename(self, episode):
         return 'checkpoints'+Config.NETWORK_DIR+'/%s_%08d' % (self.model_name, episode)

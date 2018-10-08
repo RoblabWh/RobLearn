@@ -33,24 +33,12 @@ class Config:
     # Environment configuration
 
     # Path of the world
-    PATH_TO_WORLD = ["../Simulation2d/world/square"]
+    PATH_TO_WORLD = ["../Simulation2d/world/four_rooms"]
     # Use this for multiple Environments in parallel
-    #train 1
-    #PATH_TO_WORLD = ["../Simulation2d/world/square","../Simulation2d/world/square", "../Simulation2d/world/square"]
-    #train_2
-    PATH_TO_WORLD = ["../Simulation2d/world/room","../Simulation2d/world/room"]
-    #PATH_TO_WORLD = ["../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms"]
-    #train_3
-    #PATH_TO_WORLD = ["../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms","../Simulation2d/world/four_rooms"]
-
-    #train_4
-    NETWORK_DIR =""
+    #PATH_TO_WORLD = ["../Simulation2d/world/room","../Simulation2d/world/four_rooms"]
 
     NETWORK_DIR =""
 
-    PATH_TO_WORLD = ["../Simulation2d/world/roblab"]
-    #train_5
-    #PATH_TO_WORLD = ["../Simulation2d/world/room"]
     # Mode
     MODE=Mode.ALL_RANDOM
     # Terminate the simulation
@@ -60,7 +48,7 @@ class Config:
     # use observation rotation vector
     USE_OBSERVATION_ROTATION=True
     # Observation rotation vector size
-    OBSERVATION_ROTATION_SIZE=16
+    OBSERVATION_ROTATION_SIZE=32
 
     # Visualize for training
     VISUALIZE = True
@@ -71,7 +59,7 @@ class Config:
     # Load old models. Throws if the model doesn't exist
     LOAD_CHECKPOINT =True
     # If 0, the latest checkpoint is loaded
-    LOAD_EPISODE = 0
+    LOAD_EPISODE = 2000
 
     #########################################################################
     # Number of agents, predictors, trainers and other system settings
@@ -82,13 +70,13 @@ class Config:
     # Number of Predictors
     PREDICTORS = 2#2
     # Number of Trainers
-    TRAINERS = 2 #2
+    TRAINERS = 2#2
 
     # Device
     DEVICE = 'gpu:0'
 
     # Enable the dynamic adjustment (+ waiting time to start it)
-    DYNAMIC_SETTINGS = False
+    DYNAMIC_SETTINGS = True
     DYNAMIC_SETTINGS_STEP_WAIT = 20
     DYNAMIC_SETTINGS_INITIAL_WAIT = 10
 
@@ -96,7 +84,7 @@ class Config:
     # Algorithm parameters
 
     # Max step Iteration -> if read the environment ist done. 0 for endless.
-    MAX_STEP_ITERATION = 1000
+    MAX_STEP_ITERATION = 1000#300
 
     # Discount factor
     DISCOUNT = 0.99
@@ -109,24 +97,24 @@ class Config:
     REWARD_MAX = 1
 
     # Max size of the queue
-    MAX_QUEUE_SIZE = 200 #100
-    PREDICTION_BATCH_SIZE = 256 #128
+    MAX_QUEUE_SIZE = 100 #100
+    PREDICTION_BATCH_SIZE = 32 #128
 
     # Input of the DNN
-    STACKED_FRAMES = 1
+    STACKED_FRAMES = 2
     OBSERVATION_SIZE=60
 
     # Total number of episodes and annealing frequency
-    EPISODES = 100000
-    ANNEALING_EPISODE_COUNT = 100000
+    EPISODES = 400000
+    ANNEALING_EPISODE_COUNT = 400000
 
     # Entropy regualrization hyper-parameter
     BETA_START = 0.01
     BETA_END = 0.01
 
     # Learning rate
-    LEARNING_RATE_START = 0.0003
-    LEARNING_RATE_END = 0.0003
+    LEARNING_RATE_START = 0.0003 #0.0003
+    LEARNING_RATE_END = 0.001 #0.0003
 
     # RMSProp parameters
     RMSPROP_DECAY = 0.99
@@ -142,8 +130,8 @@ class Config:
     # Epsilon (regularize policy lag in GA3C)
     LOG_EPSILON = 1e-6
     # Training min batch size - increasing the batch size increases the stability of the algorithm, but make learning slower
-    TRAINING_MIN_BATCH_SIZE = 128 #0
-    
+    TRAINING_MIN_BATCH_SIZE = 16 #128#0
+
     #########################################################################
     # Log and save
 
@@ -155,7 +143,7 @@ class Config:
     # Enable to save models every SAVE_FREQUENCY episodes
     SAVE_MODELS = True
     # Save every SAVE_FREQUENCY episodes
-    SAVE_FREQUENCY = 200
+    SAVE_FREQUENCY = 1000
     
     # Print stats every PRINT_STATS_FREQUENCY episodes
     PRINT_STATS_FREQUENCY = 1
