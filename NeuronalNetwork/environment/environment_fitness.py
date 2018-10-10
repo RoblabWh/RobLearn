@@ -162,7 +162,7 @@ class FitnessData:
 
         diff_rotations = (math.pi - math.fabs(math.fabs(diff_rotation_to_end) - math.fabs(diff_rotation_to_end_last)))/math.pi # [0 - 1]
 
-        rotations_cos_sum = (math.cos(diff_rotation_to_end) + math.cos(diff_rotation_to_end_last))#  [ -2 , 2]
+        rotations_cos_sum = (math.cos(diff_rotation_to_end) + math.cos(diff_rotation_to_end_last))/2#  [ -2 , 2]
 
         if distance_between_last_step != 0:
             distance_robot_to_end_diff_abs = distance_robot_to_end_diff_abs/distance_between_last_step # Normalization to [0 - 1]
@@ -175,9 +175,9 @@ class FitnessData:
             distance_robot_to_end_diff_abs *= 2 #[0 - 2]
 
         if math.fabs(diff_rotation_to_end) > math.fabs(diff_rotation_to_end_last):
-            diff_rotations *= -1.0 # [-1, 0}
+            diff_rotations *= -2.0 # [-1, 0}
         else:
-            diff_rotations *= 1.0 # [0, 1 ]
+            diff_rotations *= 2.0 # [0, 1 ]
 
 
         reward += distance_robot_to_end_diff_abs # [-2 , 2 ]
