@@ -147,7 +147,7 @@ class FitnessData:
         :return: Reward, done.
         """
         done = False
-        reward = -0.9
+        reward = 0.0
 
         distance_between_last_step = self._distance_between_last_step(robot_x, robot_y)
 
@@ -160,37 +160,37 @@ class FitnessData:
         diff_rotation_to_end_last = self.angle_difference_from_robot_to_end(self._robot_x_last, self._robot_y_last,self._robot_orientation_last)
         diff_rotation_to_end = self.angle_difference_from_robot_to_end(robot_x, robot_y,robot_orientation)
 
-        diff_rotations = (math.pi - math.fabs(math.fabs(diff_rotation_to_end) - math.fabs(diff_rotation_to_end_last)))/math.pi # [0 - 1]
+        diff_rotations =((2*math.pi) - math.fabs(diff_rotation_to_end) - math.fabs(diff_rotation_to_end_last))/(2*math.pi) # [0 , 1]
 
-        rotations_cos_sum = (math.cos(diff_rotation_to_end) + math.cos(diff_rotation_to_end_last))/2#  [ -2 , 2]
+        rotations_cos_sum =  (math.cos(diff_rotation_to_end) + math.cos(diff_rotation_to_end_last))/2#  [ -1 , 1]
 
         if distance_between_last_step != 0:
-            distance_robot_to_end_diff_abs = distance_robot_to_end_diff_abs/distance_between_last_step # Normalization to [0 - 1]
+            distance_robot_to_end_diff_abs = distance_robot_to_end_diff_abs/distance_between_last_step # Normalization to [0 , 1]
         else:
             distance_robot_to_end_diff_abs = 0
 
         if distance_robot_to_end > sqrt(distance_between_last_step**2 + distance_robot_to_end_last**2):
-            distance_robot_to_end_diff_abs *= -2  # [-2,0]
+            distance_robot_to_end_diff_abs *= -1.0 # [-1,0]
         else:
-            distance_robot_to_end_diff_abs *= 2 #[0 - 2]
+            distance_robot_to_end_diff_abs *= 1.0 #[0, 1]
 
         if math.fabs(diff_rotation_to_end) > math.fabs(diff_rotation_to_end_last):
-            diff_rotations *= -2.0 # [-1, 0}
+            diff_rotations *= -1.0 # [-1,0]
         else:
-            diff_rotations *= 2.0 # [0, 1 ]
+            diff_rotations *=  1.0 # [0,1]
 
 
-        reward += distance_robot_to_end_diff_abs # [-2 , 2 ]
-        reward += rotations_cos_sum #[-2 , 2 ]
-        reward += diff_rotations # [ -1 , 1 ]
+        reward += distance_robot_to_end_diff_abs # [-1 , 1 ]
+        reward += rotations_cos_sum #[-1 , 1 ]
+        reward += diff_rotations # [ -1 , 1]
 
 
-        #reward [-5, 5 ]
+        #reward [-3, 3 ]
         if env_done:
-            reward = -20 #- distance_robot_to_end / distance_start_to_end * 100
+            reward = -10 #- distance_robot_to_end / distance_start_to_end * 100
             done = True
         elif distance_robot_to_end < self._node_data.get_node_end().radius():
-            reward = 20
+            reward = 10
             done = self._handle_terminate_at_end()
 
 
