@@ -6,6 +6,12 @@ Repository clonen
 git clone https://github.com/RoblabWh/RobLearn
 ```
 
+Abhängigkeiten
+
+```
+sudo apt-get install libeigen3-dev libboost-python-dev libboost-system-dev gnuplot-x11
+```
+
 2D Simulation installieren
 
 ```
