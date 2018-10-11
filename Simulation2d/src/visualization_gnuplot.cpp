@@ -39,7 +39,7 @@ void Visualization_Gnuplot::construct_world(const DataContainer &data)
         ss << "'-' using 1:2:3 with circles lc 'blue', ";
     }
 
-    ss << "'-' using 1:2:3 with circles lc 'cyan' fill solid border, '-' using 1:2:3:4 with vectors nohead lc 'green', '-' using 1:2:3 with circles lc 'red', '-' using 1:2:3:4 with vectors lc 'red'\n";
+    ss << "'-' using 1:2:3:4 with vectors nohead lc 'green', '-' using 1:2:3 with circles lc 'magenta' fill solid border, '-' using 1:2:3 with circles lc 'red', '-' using 1:2:3:4 with vectors lc 'red'\n";
 
     // create lines
     if (data.get_line_size() != 0) {
@@ -77,17 +77,17 @@ void Visualization_Gnuplot::visualize(const Robot &robot, const DataContainer &d
 
     std::stringstream ss;
 
-    // create end node
-    ss << end_node.get_x() << " " << end_node.get_y() << " " << end_node.get_radius() << "\n";
-
-    ss << "EOF\n";
-
     // create laser
     Eigen::Affine2f pose = robot.get_pose();
     for (int i = 0; i < robot.get_lidar().get_laser_size(); ++i) {
         Eigen::Vector2f laser = pose.rotation() * robot.get_lidar().get_laser_point_distance_at(i);
         ss << robot.get_position_x() << " " << robot.get_position_y() << " " << laser.x() << " " << laser.y() << "\n";
     }
+    ss << "EOF\n";
+
+    // create end node
+    ss << end_node.get_x() << " " << end_node.get_y() << " " << end_node.get_radius() << "\n";
+
     ss << "EOF\n";
 
     // create robot
