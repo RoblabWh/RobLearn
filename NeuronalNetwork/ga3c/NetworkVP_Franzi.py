@@ -103,44 +103,45 @@ class NetworkVP:
 
         #----------------------------------- Darf bis hier bleiben(??)------------------------------------
 
-        # self.lstm_cell1 = tf.nn.rnn_cell.LSTMCell(128)
-        # self.n1, self.final_state1 = tf.nn.dynamic_rnn(self.lstm_cell1, self.x,
-        #                                    dtype=tf.float32)
-
-        # self.lstm_cell2 = tf.nn.rnn_cell.LSTMCell(64)
-        # self.n2, self.final_state1 = tf.nn.dynamic_rnn(self.lstm_cell2, self.n1,
-        #                                    dtype=tf.float32)
-
-        # lstm_size1 = 32
-        # lstm_size2 = 64
-
-        self.lstm_cell1 = tf.nn.rnn_cell.LSTMCell(64)
-        # self.n2, self.final_state1 = tf.nn.dynamic_rnn(self.lstm_cell1, self.x,
-        #                                    dtype=tf.float32)
-
-        # rnn_layers = [tf.nn.rnn_cell.LSTMCell(size) for size in [lstm_size1, lstm_size2]]
-        # multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
-        # self.n2, self.final_state = tf.nn.dynamic_rnn(cell=multi_rnn_cell, inputs=self.x, dtype=tf.float32)
-        #
-        # self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
-        # _input = self.n2
-
         # As implemented in A3C paper
         self.n1 = self.conv1d_layer(self.x, 9, 16, 'conv11', stride=5)
         self.n2 = self.conv1d_layer(self.n1, 5, 32, 'conv12', stride=3)
         self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
-        _input = self.n2
+
+        # _input = self.n2
+        #
+        # flatten_input_shape = _input.get_shape()
+        # nb_elements = flatten_input_shape[1] * flatten_input_shape[2]
+        #
+        # self.flat = tf.reshape(_input, shape=[-1, nb_elements._value])
+        # self.d1 = self.dense_layer(self.flat, 256, 'dense1')
+
+        # FRANZI KRAAAAAAAAM AHHHHHHHHHHHHH
+        lstm_size1 = 128
+        lstm_size2 = 256
+
+        # rnn_layers = [tf.nn.rnn_cell.LSTMCell(size) for size in [lstm_size1, lstm_size2]]
+        # multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
+        self.lstm_cell1 = tf.nn.rnn_cell.LSTMCell(128)
+
+        self.d1, self.final_state = tf.nn.dynamic_rnn(self.lstm_cell1, self.n2, dtype=tf.float32)
+
+        _input = self.d1
 
         flatten_input_shape = _input.get_shape()
         nb_elements = flatten_input_shape[1] * flatten_input_shape[2]
 
         self.flat = tf.reshape(_input, shape=[-1, nb_elements._value])
-        self.d1 = self.dense_layer(self.flat, 256, 'dense1')
 
-        self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
+        temp = self.dense_layer(self.flat, 1, 'logits_v', func=None)  # normal dense layer vllt?
+
+        # FRANZI KRAAAAAAAAM ENDE AHHHHHHHHHHHHH
+
+        self.logits_v = tf.squeeze(temp, axis=[1])
+
         self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)
 
-        self.logits_p = self.dense_layer(self.d1, self.num_actions, 'logits_p', func=None)
+        self.logits_p = self.dense_layer(self.flat, self.num_actions, 'logits_p', func=None)
 
         # ----------------------------------- Darf mindestens ab hier bleiben(??)------------------------------------
 
