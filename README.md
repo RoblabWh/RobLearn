@@ -19,6 +19,7 @@ cd NeuronalNetwork
 bash build.sh
 ```
 
+sudo -H pip3 install tensorflow-gpu keras numpy
 example_dqn.py ausführen
 
 ```
