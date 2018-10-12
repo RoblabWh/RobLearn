@@ -9,7 +9,7 @@ git clone https://github.com/RoblabWh/RobLearn
 Abhängigkeiten
 
 ```
-sudo apt-get install libeigen3-dev libboost-python-dev libboost-system-dev gnuplot-x11 python3-dev inkscape
+sudo apt-get install libeigen3-dev libboost-python-dev libboost-system-dev gnuplot-x11 python3-dev inkscape python3-pip
 ```
 
 2D Simulation installieren
