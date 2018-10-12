@@ -22,7 +22,7 @@ bash build.sh
 example_dqn.py ausführen
 
 ```
-python3 example_dyn.py
+python3 example_dqn.py
 ```
 
 __Hinweis: Example im Terminal starten, da die Gnuplot-Visualierung den Desktop blockiert__
