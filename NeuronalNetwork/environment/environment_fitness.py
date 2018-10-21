@@ -2,8 +2,7 @@
 
 import math
 from .environment_node_data import NodeData, Mode
-
-
+from math import sqrt
 class FitnessData:
     """
     Class for calculating the fitness function reward from the current simulation state. Possible reward calculation
@@ -148,43 +147,53 @@ class FitnessData:
         :return: Reward, done.
         """
         done = False
-        reward = -1
+        reward = 0.0
 
-        #distance_start_to_end = self.__distance_start_to_end()
-        distance_robot_to_end = self._distance_robot_to_end(robot_x, robot_y)
-        distance_robot_to_start = self._distance_robot_to_start(robot_x, robot_y)
         distance_between_last_step = self._distance_between_last_step(robot_x, robot_y)
+
+        distance_robot_to_end = self._distance_robot_to_end(robot_x, robot_y)
         distance_robot_to_end_last = self._distance_robot_to_end(self._robot_x_last, self._robot_y_last)
+
         distance_robot_to_end_diff = distance_robot_to_end_last - distance_robot_to_end;
+        distance_robot_to_end_diff_abs = abs(distance_robot_to_end_diff)
 
-        if distance_robot_to_end_diff < 0:
-            distance_robot_to_end_diff *= 2
+        diff_rotation_to_end_last = self.angle_difference_from_robot_to_end(self._robot_x_last, self._robot_y_last,self._robot_orientation_last)
+        diff_rotation_to_end = self.angle_difference_from_robot_to_end(robot_x, robot_y,robot_orientation)
+
+
+        rotations_cos_sum =  math.cos(diff_rotation_to_end) #  [ -1 , 1]
+
+        diff_rotations = math.fabs(math.fabs(diff_rotation_to_end_last) - math.fabs(diff_rotation_to_end))   # [0 , pi]
+        if distance_between_last_step != 0:
+            distance_robot_to_end_diff_abs = distance_robot_to_end_diff_abs/distance_between_last_step # Normalization to [0 , 1]
         else:
-            distance_robot_to_end_diff *= 1.5
+            distance_robot_to_end_diff_abs = 0
 
-        reward += distance_robot_to_end_diff
+        if distance_robot_to_end > sqrt(distance_between_last_step**2 + distance_robot_to_end_last**2):
+            distance_robot_to_end_diff_abs *= -6.0 # [-6,0]
+        else:
+            distance_robot_to_end_diff_abs *= 6.0 #[0, 6]
 
-        #reward = distance_between_last_step + (1 - distance_robot_to_end / distance_start_to_end) + distance_between_last_step
+        if math.fabs(diff_rotation_to_end) > math.fabs(diff_rotation_to_end_last):
 
-        # reward += 10 * max((10 - self._distance_robot_to_end(robot_x, robot_y)) / 10, 0)
-        # reward += distance_robot_to_start
-        # reward += distance_between_last_step
-        # reward -= distance_robot_to_end
+            diff_rotations *= -3.0 # [-3xpi,0]
+        else:
+            diff_rotations *=  2.0 # [0,2xpi]
 
-        reward += ((math.pi - math.fabs(self._difference_two_angles(robot_orientation, self._orientation_robot_to_end(robot_x, robot_y)))) / math.pi) * 1
-        #reward += max((5 - self._distance_robot_to_end(robot_x, robot_y)) / 5, 0)
-        #reward = 0
 
+        reward += distance_robot_to_end_diff_abs # [-6 , 6 ]
+        reward += (3*rotations_cos_sum) #[-3 , 3 ]
+        reward += diff_rotations # [ -3xpi , pi]
+
+
+        #reward ~ [-18, 12 ]
         if env_done:
-            reward = -10 #- distance_robot_to_end / distance_start_to_end * 100
+            reward = -20 #- distance_robot_to_end / distance_start_to_end * 100
             done = True
         elif distance_robot_to_end < self._node_data.get_node_end().radius():
-            reward = 10
+            reward = 20
             done = self._handle_terminate_at_end()
-        # else:
-        # #     # reward = 1
-        # #     reward = -1
-        # #     # reward = 0
+
 
         self._robot_x_last = robot_x
         self._robot_y_last = robot_y
