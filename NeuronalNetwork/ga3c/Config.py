@@ -33,9 +33,9 @@ class Config:
     # Environment configuration
 
     # Path of the world
-    PATH_TO_WORLD = ["../Simulation2d/world/roblab"]
+    PATH_TO_WORLD = ["../Simulation2d/world/room"]
     # Use this for multiple Environments in parallel
-    # PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms"]
+    PATH_TO_WORLD = [ "../Simulation2d/world/room" , "../Simulation2d/world/four_rooms" , "../Simulation2d/world/roblab" ]
 
     # Mode
     MODE=Mode.ALL_RANDOM
@@ -58,18 +58,18 @@ class Config:
     # Load old models. Throws if the model doesn't exist
     LOAD_CHECKPOINT = False
     # If 0, the latest checkpoint is loaded
-    LOAD_EPISODE = 0 
+    LOAD_EPISODE = 0
 
     #########################################################################
     # Number of agents, predictors, trainers and other system settings
-    
+
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 32#32
+    AGENTS = 64#32
     # Number of Predictors
-    PREDICTORS = 2 #2
+    PREDICTORS = 8 #2
     # Number of Trainers
-    TRAINERS = 2 #2
+    TRAINERS = 8 #2
 
     # Device
     DEVICE = 'gpu:0'
@@ -83,17 +83,17 @@ class Config:
     # Algorithm parameters
 
     # Max step Iteration -> if read the environment ist done. 0 for endless.
-    MAX_STEP_ITERATION = 300
+    MAX_STEP_ITERATION = 1000
 
     # Discount factor
     DISCOUNT = 0.99
-    
+
     # Tmax
     TIME_MAX = 10 #5
-    
+
     # Reward Clipping
-    REWARD_MIN = -1
-    REWARD_MAX = 1
+    REWARD_MIN = -15
+    REWARD_MAX = 12
 
     # Max size of the queue
     MAX_QUEUE_SIZE = 100 #100
@@ -125,12 +125,12 @@ class Config:
 
     # Gradient clipping
     USE_GRAD_CLIP = False
-    GRAD_CLIP_NORM = 40.0 
+    GRAD_CLIP_NORM = 40.0
     # Epsilon (regularize policy lag in GA3C)
     LOG_EPSILON = 1e-6
     # Training min batch size - increasing the batch size increases the stability of the algorithm, but make learning slower
     TRAINING_MIN_BATCH_SIZE = 32 #0
-    
+
     #########################################################################
     # Log and save
 
@@ -143,7 +143,7 @@ class Config:
     SAVE_MODELS = True
     # Save every SAVE_FREQUENCY episodes
     SAVE_FREQUENCY = 1000
-    
+
     # Print stats every PRINT_STATS_FREQUENCY episodes
     PRINT_STATS_FREQUENCY = 1
     # The window to average stats
@@ -156,7 +156,7 @@ class Config:
 
     #########################################################################
     # More experimental parameters here
-    
+
     # Minimum policy
     MIN_POLICY = 0.0
     # Use log_softmax() instead of log(softmax())
