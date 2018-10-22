@@ -83,7 +83,7 @@ class Config:
     # Algorithm parameters
 
     # Max step Iteration -> if read the environment ist done. 0 for endless.
-    MAX_STEP_ITERATION = 1000
+    MAX_STEP_ITERATION = 300
 
     # Discount factor
     DISCOUNT = 0.99
