@@ -36,7 +36,7 @@ class Config:
     # Use this for multiple Environments in parallel
     PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms", "../Simulation2d/world/roblab"]
 
-    NETWORK_DIR = "_2D_input_Net"
+    NETWORK_DIR = "2D"
 
     # Mode
     MODE = Mode.ALL_RANDOM
@@ -150,9 +150,9 @@ class Config:
     STAT_ROLLING_MEAN_WINDOW = 1000
 
     # Results filename
-    RESULTS_FILENAME = 'resultsCNN.txt'
+    RESULTS_FILENAME = 'results2D.txt'
     # Network checkpoint name
-    NETWORK_NAME = 'networkCNN'
+    NETWORK_NAME = 'network2D'
 
     #########################################################################
     # More experimental parameters here
