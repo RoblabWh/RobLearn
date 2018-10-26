@@ -33,9 +33,10 @@ class Config:
     # Environment configuration
 
     # Path of the world
-    PATH_TO_WORLD = ["../Simulation2d/world/roblab"]
+    # PATH_TO_WORLD = ["../Simulation2d/world/roblab"]
+    # PATH_TO_WORLD = ["../Simulation2d/world/room"]
     # Use this for multiple Environments in parallel
-    # PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms"]
+    PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms", "../Simulation2d/world/roblab"]
 
     # Mode
     MODE=Mode.ALL_RANDOM
@@ -65,7 +66,7 @@ class Config:
     
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 32#32
+    AGENTS = 24  #32
     # Number of Predictors
     PREDICTORS = 2 #2
     # Number of Trainers
@@ -75,7 +76,7 @@ class Config:
     DEVICE = 'gpu:0'
 
     # Enable the dynamic adjustment (+ waiting time to start it)
-    DYNAMIC_SETTINGS = False
+    DYNAMIC_SETTINGS = True
     DYNAMIC_SETTINGS_STEP_WAIT = 20
     DYNAMIC_SETTINGS_INITIAL_WAIT = 10
 
@@ -100,7 +101,7 @@ class Config:
     PREDICTION_BATCH_SIZE = 128 #128
 
     # Input of the DNN
-    STACKED_FRAMES = 4
+    STACKED_FRAMES = 1
     OBSERVATION_SIZE=1081+OBSERVATION_ROTATION_SIZE
 
     # Total number of episodes and annealing frequency
@@ -135,7 +136,7 @@ class Config:
     # Log and save
 
     # Enable TensorBoard
-    TENSORBOARD = False
+    TENSORBOARD = True
     # Update TensorBoard every X training steps
     TENSORBOARD_UPDATE_FREQUENCY = 1000
 
@@ -152,7 +153,8 @@ class Config:
     # Results filename
     RESULTS_FILENAME = 'results.txt'
     # Network checkpoint name
-    NETWORK_NAME = 'network'
+    NETWORK_NAME = 'network_lstm'
+    # NETWORK_NAME = 'network2'
 
     #########################################################################
     # More experimental parameters here
