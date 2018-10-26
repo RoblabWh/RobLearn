@@ -6,6 +6,12 @@ Repository clonen
 git clone https://github.com/RoblabWh/RobLearn
 ```
 
+Abhängigkeiten
+
+```
+sudo apt-get install libeigen3-dev libboost-python-dev libboost-system-dev python3-dev inkscape python3-pip gnuplot-qt
+```
+
 2D Simulation installieren
 
 ```
@@ -13,10 +19,18 @@ cd NeuronalNetwork
 bash build.sh
 ```
 
+Cuda 9.0  installieren (siehe -> cuda developer) + libcudnn (-> nvidia)
+
+```
+sudo dpkg -i libcudnn7_7.3.1.20-1+cuda9.0_amd64.deb
+sudo dpkg -i libcudnn7-dev_7.3.1.20-1+cuda9.0_amd64.deb 
+sudo -H pip3 install tensorflow-gpu keras numpy
+```
+
 example_dqn.py ausführen
 
 ```
-python3 example_dyn.py
+python3 example_dqn.py
 ```
 
 __Hinweis: Example im Terminal starten, da die Gnuplot-Visualierung den Desktop blockiert__

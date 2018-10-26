@@ -28,26 +28,26 @@ from environment.environment_fitness import Mode
 
 
 class Config:
-
     #########################################################################
     # Environment configuration
 
     # Path of the world
     PATH_TO_WORLD = ["../Simulation2d/world/room"]
     # Use this for multiple Environments in parallel
-    PATH_TO_WORLD = [ "../Simulation2d/world/room" , "../Simulation2d/world/four_rooms" , "../Simulation2d/world/roblab" ]
+    PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms", "../Simulation2d/world/roblab"]
+
+    NETWORK_DIR = "2D"
 
     # Mode
-    MODE=Mode.ALL_RANDOM
+    MODE = Mode.ALL_RANDOM
     # Terminate the simulation
-    TERMINATE_AT_END=False
+    TERMINATE_AT_END = False
     # Cluster size of the lidar
-    CLUSTER_SIZE=1
+    CLUSTER_SIZE = 18
     # use observation rotation vector
-    USE_OBSERVATION_ROTATION=True
+    USE_OBSERVATION_ROTATION = True
     # Observation rotation vector size
-    OBSERVATION_ROTATION_SIZE=128
-
+    OBSERVATION_ROTATION_SIZE = 32
 
     # Visualize for training
     VISUALIZE = True
@@ -58,24 +58,24 @@ class Config:
     # Load old models. Throws if the model doesn't exist
     LOAD_CHECKPOINT = False
     # If 0, the latest checkpoint is loaded
-    LOAD_EPISODE = 0
+    LOAD_EPISODE = 0  # 49000
 
     #########################################################################
     # Number of agents, predictors, trainers and other system settings
 
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 64#32
+    AGENTS = 64  # 32
     # Number of Predictors
-    PREDICTORS = 8 #2
+    PREDICTORS = 8  # 2
     # Number of Trainers
-    TRAINERS = 8 #2
+    TRAINERS = 8  # 2
 
     # Device
     DEVICE = 'gpu:0'
 
     # Enable the dynamic adjustment (+ waiting time to start it)
-    DYNAMIC_SETTINGS = False
+    DYNAMIC_SETTINGS = True
     DYNAMIC_SETTINGS_STEP_WAIT = 20
     DYNAMIC_SETTINGS_INITIAL_WAIT = 10
 
@@ -83,25 +83,25 @@ class Config:
     # Algorithm parameters
 
     # Max step Iteration -> if read the environment ist done. 0 for endless.
-    MAX_STEP_ITERATION = 300
+    MAX_STEP_ITERATION = 300  # 300
 
     # Discount factor
     DISCOUNT = 0.99
 
     # Tmax
-    TIME_MAX = 10 #5
+    TIME_MAX = 10  # 5
 
     # Reward Clipping
     REWARD_MIN = -15
     REWARD_MAX = 12
 
     # Max size of the queue
-    MAX_QUEUE_SIZE = 100 #100
-    PREDICTION_BATCH_SIZE = 128 #128
+    MAX_QUEUE_SIZE = 200  # 100
+    PREDICTION_BATCH_SIZE = 128  # 128
 
-    # Input of the DNN
-    STACKED_FRAMES = 4
-    OBSERVATION_SIZE=1081+OBSERVATION_ROTATION_SIZE
+    # Input of the CNN
+    STACKED_FRAMES = 2
+    OBSERVATION_SIZE = 60
 
     # Total number of episodes and annealing frequency
     EPISODES = 400000
@@ -112,8 +112,8 @@ class Config:
     BETA_END = 0.01
 
     # Learning rate
-    LEARNING_RATE_START = 0.0003
-    LEARNING_RATE_END = 0.0003
+    LEARNING_RATE_START = 0.0003  # 0.0003
+    LEARNING_RATE_END = 0.0003  # 0.0003
 
     # RMSProp parameters
     RMSPROP_DECAY = 0.99
@@ -129,13 +129,13 @@ class Config:
     # Epsilon (regularize policy lag in GA3C)
     LOG_EPSILON = 1e-6
     # Training min batch size - increasing the batch size increases the stability of the algorithm, but make learning slower
-    TRAINING_MIN_BATCH_SIZE = 32 #0
+    TRAINING_MIN_BATCH_SIZE = 32  # 128#0
 
     #########################################################################
     # Log and save
 
     # Enable TensorBoard
-    TENSORBOARD = False
+    TENSORBOARD = True
     # Update TensorBoard every X training steps
     TENSORBOARD_UPDATE_FREQUENCY = 1000
 
@@ -150,9 +150,9 @@ class Config:
     STAT_ROLLING_MEAN_WINDOW = 1000
 
     # Results filename
-    RESULTS_FILENAME = 'results.txt'
+    RESULTS_FILENAME = 'results2D.txt'
     # Network checkpoint name
-    NETWORK_NAME = 'network'
+    NETWORK_NAME = 'network2D'
 
     #########################################################################
     # More experimental parameters here
