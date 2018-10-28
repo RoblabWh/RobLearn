@@ -1,0 +1,14 @@
+<stack>
+  <description brief="Yujin Robot's mobile research base">
+    Description of the Kobuki model.
+    Provides the model description of Kobuki for simulation and visualisation. The files in this
+    package are parsed and used by a variety of other components. Most users will not interact directly
+    with this package.
+  </description>
+  <author>Maintained by Daniel Stonier</author>
+  <license>BSD</license>  
+  <review status="experimental" notes=""/>
+  <url>http://ros.org/wiki/kobuki_description</url>
+  <depend stack="robot_model"/> <!-- urdf -->
+  <depend stack="xacro"/>
+</stack>
