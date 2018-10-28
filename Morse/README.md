@@ -73,7 +73,7 @@ Dann mit Hilfe von installer.sh wie folgt installieren:
 $ chmod +x installer.sh
 $ ./installer.sh
 ```
-#Bug und turtlebot_sim Projekte ausführen
+# Bug und turtlebot_sim Projekte ausführen
  
   1. zum Ordner Bug oder TurtleBot navigieren.
   2. Simulator breitstellen: $ morse run projektname
@@ -91,7 +91,7 @@ $ morse run turtlebot_sim
 $ python /path zum Projekt/scripts/turtlebot_sim_client.py
 ```
 
-#Konfiguration des Bug Projektes
+# Konfiguration des Bug Projektes
 Damit man das Projekt mit diversen Roboter, sensoren, aktuatoren und umgebungen testen kann, wurde es einige allgemeine toml Konfigurationsdateien vorgesehen:
 
 1. simulation.toml : Integration von Environment, Robot und Kamera in der Simulation
