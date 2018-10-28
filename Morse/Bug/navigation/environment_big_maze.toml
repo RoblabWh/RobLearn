@@ -1,0 +1,43 @@
+# Roboter sammelt punkte, wenn er der Ball trifft 
+# Wenn er gegen Wand fährt, verliert die Punkte
+
+[simulation]
+	numrobot = 1
+	numobject = 3
+	map = "square_maze_medium"
+	actuators = ["MotionVW", "Keyboard"]
+	sensors = ["Pose", "Proximity", "Infrared"]
+	[[simulation.objects]]
+		file = "target"
+		name = "GOAL"
+		x = 0
+		y = 3
+		z = 0.01
+		[simulation.objects.properties]
+			Label = "GOAL"
+			GOAL = true
+	[[simulation.camera_position]]
+		x_cam = 0
+		y_cam = 0
+		z_cam = 50
+		p_cam = 0
+		q_cam = 0
+		r_cam = 0
+	[[simulation.robot_position]]
+		x = 10
+		y = -10
+		z = 1
+		p = 0
+		q = 0
+		r = 0
+	[simulation.time]
+		totalTime = 5
+		simulationStopMode = "stopWhenNoTime"
+	[simulation.initScore]
+		k = 0
+		initialScore = 0
+		stopFlag = false
+	[[simulation.score]]
+		obj = "Wall"
+		score = -10
+		stop = false

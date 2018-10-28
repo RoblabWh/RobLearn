@@ -1,0 +1,14 @@
+[simulation]
+	name = "environment_no_target"
+	fastmode = false
+	[[simulation.robot]]
+		file = "atrv_with_ir"
+		name = "robot"
+	[[simulation.camera_position]]
+		robot = "robot"
+		x_cam = 0.5
+		y_cam = 0
+		z_cam = 0.6
+		p_cam = 0
+		q_cam = 0
+		r_cam = 3.14

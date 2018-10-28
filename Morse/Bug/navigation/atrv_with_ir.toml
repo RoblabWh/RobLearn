@@ -1,0 +1,67 @@
+[robot]
+	type = 'ATRV'
+	[[robot.actuators]]
+		id = 'motion'
+		type = 'MotionVW'
+		[robot.actuators.interface]
+			type = 'socket'
+	[[robot.actuators]]
+		id = 'keyboard'
+		type = 'Keyboard'
+		[robot.actuators.interface]
+			type = 'socket'
+		[robot.actuators.properties]
+			ControlType = 'Position'
+	[[robot.sensors]]
+		id = 'pose'
+		type = 'Pose'
+		[robot.sensors.interface]
+			type = 'socket'
+	[[robot.sensors]]
+		id = 'prox'
+		type = 'Proximity'
+		[robot.sensors.interface]
+			type = 'socket'
+		[robot.sensors.properties]
+			Track = "GOAL"
+	[[robot.sensors]]
+		id = 'ir1'
+		type = 'Infrared'
+		x = 0.3
+		y = 0.0
+		z = 0.1
+		q = 0.0
+		[robot.sensors.interface]
+			type = 'socket'
+	[[robot.sensors]]
+		id = 'ir2'
+		type = 'Infrared'
+		x = 0.3
+		y = -0.1
+		z = 0.1
+		r = 1.047
+		[robot.sensors.interface]
+			type = 'socket'
+	[[robot.sensors]]
+		id = 'ir3'
+		type = 'Infrared'
+		x = 0.3
+		y = 0.1
+		z = 0.1
+		r = -1.047
+		[robot.sensors.interface]
+			type = 'socket'
+	[[robot.sensors]]
+		id = 'ir4'
+		type = 'Infrared'
+		x = 0.3
+		y = 0.0
+		z = 0.1
+		r = 3.14
+		[robot.sensors.interface]
+			type = 'socket'
+	[[robot.eduMorseCollision]]
+		zTran = 0.3
+		x = 0.8
+		y = 0.6
+		z = 0.05
