@@ -93,53 +93,59 @@ class NetworkVP:
         # self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
         # self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)
 
-        self.input2D = tf.placeholder(tf.float32, [None, self.observation_size, 100,
-                                                   2 * self.observation_channels], name='input2D')
+        self.input2D = tf.placeholder(tf.float32, [None, self.observation_size, 100, self.observation_channels], name='input2D')
 
         self.rotation = tf.placeholder(
             tf.float32, [None, self.rotation_size, self.observation_channels], name='rotation')
 
-        # self.x = tf.placeholder(
-        #    tf.float32, [None, self.observation_size, self.observation_channels], name='X')
+
         self.y_r = tf.placeholder(tf.float32, [None], name='Yr')
 
-        # @todo   change observation size + rotation size in config
-        # rotation with con1D
-        # input with conv2d
-        # flattern input and output of conv1d
+
 
         self.var_beta = tf.placeholder(tf.float32, name='beta', shape=[])
         self.var_learning_rate = tf.placeholder(tf.float32, name='lr', shape=[])
 
         self.global_step = tf.Variable(0, trainable=False, name='step')
-        # @todo added  flattern conv2d
+
 
         # As implemented in A3C paper
+        self.conv2D_1 = self.conv2d_layer(self.input2D, 10, 16, 'con2d_1', strides=[1, 2, 2, 1])
+        self.max_pool1 = self.max_pool_2x2(self.conv2D_1)
 
-        self.conv2D_1 = self.conv2d_layer(self.input2D, 5, 16, 'con2d_1', strides=[1, 2, 2, 1])
-        self.conv2D_2 = self.conv2d_layer(self.conv2D_1, 5, 32, 'con2d_2', strides=[1, 4, 4, 1])
 
-        _input2D = self.conv2D_2
+
+        self.conv2D_2 = self.conv2d_layer(self.max_pool1, 5, 32, 'con2d_2', strides=[1, 2, 2, 1])
+        self.max_pool2 = self.max_pool_2x2(self.conv2D_2 )
+
+        self.conv2D_3 = self.conv2d_layer(self.max_pool2, 5, 64, 'con2d_3', strides=[1, 2, 2, 1])
+        self.max_pool3 = self.max_pool_2x2(self.conv2D_3 )
+
+
+        _input2D = self.max_pool2
+
         flatten_input2D_shape = _input2D.get_shape()
         nb_elements = flatten_input2D_shape[1] * flatten_input2D_shape[2] * flatten_input2D_shape[3]
         self.flat2D = tf.reshape(_input2D, shape=[-1, nb_elements._value])
 
-        self.n1 = self.conv1d_layer(self.rotation, 4, 16, 'conv1_1', stride=1)  # @todo statt x =>rotation
-        self.n2 = self.conv1d_layer(self.n1, 4, 8, 'conv1_2', stride=2)
+        #self.n1 = self.conv1d_layer(self.rotation, 4, 16, 'conv1_1', stride=1)  # @todo statt x =>rotation
         self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
 
-        _input_rotation = self.n2
+        _input_rotation = self.rotation
 
         # @todo add merge conv2d to the conv1d
 
+
         flatten_input_rotation_shape = _input_rotation.get_shape()
         nb_elements = flatten_input_rotation_shape[1] * flatten_input_rotation_shape[2]
-
         self.flat_rotation = tf.reshape(_input_rotation, shape=[-1, nb_elements])
-        self.concat = tf.concat([self.flat2D, self.flat_rotation], -1)
-        # @todo concat flat2D flat rotation
-        self.d1 = self.dense_layer(self.concat, 128, 'dense1')
 
+
+
+        self.concat = tf.concat([self.flat2D, self.flat_rotation], -1)
+
+
+        self.d1 = self.dense_layer(self.concat, 128, 'dense1')
         self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
         self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)
 
@@ -223,8 +229,8 @@ class NetworkVP:
         for var in tf.trainable_variables():
             summaries.append(tf.summary.histogram("weights_%s" % var.name, var))
 
-        summaries.append(tf.summary.histogram("activation_n1", self.n1))
-        summaries.append(tf.summary.histogram("activation_n2", self.n2))
+        #summaries.append(tf.summary.histogram("activation_n1", self.n1))
+        #summaries.append(tf.summary.histogram("activation_n2", self.n2))
         summaries.append(tf.summary.histogram("activation_d2", self.d1))
         summaries.append(tf.summary.histogram("activation_v", self.logits_v))
         summaries.append(tf.summary.histogram("activation_p", self.softmax_p))
@@ -265,6 +271,10 @@ class NetworkVP:
 
         return output
 
+    def max_pool_2x2(self, x):
+        # STRIDE [1,X_mvt, y_mouvement, 1]
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1],
+                              padding='SAME')
     def conv1d_layer(self, input, filter_size, out_dim, name, stride, func=tf.nn.relu):
         in_dim = input.get_shape().as_list()[-1]
         d = 1.0 / np.sqrt(filter_size * in_dim)
@@ -307,7 +317,7 @@ class NetworkVP:
     def train(self, x, y_r, a, trainer_id):
         input2D = [i[0] for i in x]
         rotation = [i[1] for i in x]
-        input2D = np.reshape(input2D, (len(input2D), self.observation_size, 100, self.observation_channels * 2))
+        input2D = np.reshape(input2D, (len(input2D), self.observation_size, 100, self.observation_channels ))
         rotation = np.reshape(rotation, (len(rotation), self.rotation_size, self.observation_channels))
         feed_dict = self.__get_base_feed_dict()
         feed_dict.update({self.input2D: input2D, self.rotation: rotation, self.y_r: y_r, self.action_index: a})
@@ -316,7 +326,7 @@ class NetworkVP:
     def log(self, x, y_r, a):
         input2D = [i[0] for i in x]
         rotation = [i[1] for i in x]
-        input2D = np.reshape(input2D, (len(input2D), self.observation_size, 100, self.observation_channels * 2))
+        input2D = np.reshape(input2D, (len(input2D), self.observation_size, 100, self.observation_channels ))
         rotation = np.reshape(rotation, (len(rotation), self.rotation_size, self.observation_channels))
         feed_dict = self.__get_base_feed_dict()
         feed_dict.update({self.input2D: input2D, self.rotation: rotation, self.y_r: y_r, self.action_index: a})

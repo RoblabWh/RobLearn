@@ -112,7 +112,7 @@ class ProcessAgent(Process):
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX:
-                terminal_reward = -20 if done else value
+                terminal_reward = 0 if done else value
 
                 updated_exps = ProcessAgent._accumulate_rewards(experiences, self.discount_factor, terminal_reward)
                 x_, r_, a_ = self.convert_data(updated_exps)
