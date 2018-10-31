@@ -29,7 +29,7 @@ from action_mapper import map_action
 from environment.environment import Environment
 
 from .Config import Config
-from .Grid_map import GridMap
+from .StateMap import StateMap
 
 
 class GameManager:
@@ -56,8 +56,8 @@ class GameManager:
     def reset(self):
         observation, _, _, _ = self.env.reset()
         input_laser, rotation = self.process_observation(observation)
-        map = GridMap(input_laser)
-        obs = np.array([[map.States_map, map.Reward_map], [rotation]])
+        map = StateMap(input_laser)
+        obs = np.array([ [map.S_image], [rotation] ])
         return obs
 
     def step(self, action):
@@ -66,8 +66,9 @@ class GameManager:
             observation, reward, done, info = self.env.step(0, 0, 20)
 
             input_laser, rotation = self.process_observation(observation)
-            map = GridMap(input_laser)
-            obs = np.array([[map.States_map, map.Reward_map], [rotation]])
+            map = StateMap(input_laser)
+            #obs = np.array([[map.States_map, map.Reward_map], [rotation]])
+            obs = np.array([[map.S_image], [rotation]])
             reward = 0
             done = False
         else:
@@ -75,8 +76,8 @@ class GameManager:
             linear, angular = map_action(action)
             observation, reward, done, info = self.env.step(linear, angular, 20)
             input_laser, rotation = self.process_observation(observation)
-            map = GridMap(input_laser)
-            obs = np.array([[map.States_map, map.Reward_map], [rotation]])
+            map = StateMap(input_laser)
+            obs = np.array([[map.S_image], [rotation]])
 
         return obs, reward, done, info
 
