@@ -52,9 +52,9 @@ class Environment:
     def _get_current_state(self):
         if not self.frame_q.full():
             return None  # frame queue is not full yet.
-        _maps = np.array([i[0] for i in self.frame_q.queue])
-        _rotations = np.array([i[1] for i in self.frame_q.queue])
-        _maps = np.reshape(_maps, (Config.OBSERVATION_SIZE, 100, 2 * self.nb_frames))
+        _maps = np.array([i[0][0] for i in self.frame_q.queue])
+        _rotations = np.array([i[1][0] for i in self.frame_q.queue])
+        _maps = np.reshape(_maps, (Config.OBSERVATION_SIZE, 100,self.nb_frames))
         _rotations = np.reshape(_rotations, (Config.OBSERVATION_ROTATION_SIZE, self.nb_frames))
         # x_ = np.transpose(x_, [1, 2, 0])  # move channels
         # x_ = np.transpose(x_, [1, 0])  # move channels

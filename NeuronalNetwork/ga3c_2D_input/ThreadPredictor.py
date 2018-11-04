@@ -43,7 +43,7 @@ class ThreadPredictor(Thread):
     def run(self):
         ids = np.zeros(Config.PREDICTION_BATCH_SIZE, dtype=np.uint16)
         states = np.zeros(
-            (Config.PREDICTION_BATCH_SIZE, Config.OBSERVATION_SIZE, 100, 2 * Config.STACKED_FRAMES),
+            (Config.PREDICTION_BATCH_SIZE, Config.OBSERVATION_SIZE, 100,  Config.STACKED_FRAMES),
             dtype=np.float32)
         rotations = np.zeros(
             (Config.PREDICTION_BATCH_SIZE, Config.OBSERVATION_ROTATION_SIZE, Config.STACKED_FRAMES),

@@ -32,7 +32,7 @@ class Config:
     # Environment configuration
 
     # Path of the world
-    PATH_TO_WORLD = ["../Simulation2d/world/room"]
+    PATH_TO_WORLD = ["../Simulation2d/world/four_rooms"]
     # Use this for multiple Environments in parallel
     PATH_TO_WORLD = ["../Simulation2d/world/room", "../Simulation2d/world/four_rooms", "../Simulation2d/world/roblab"]
 
@@ -43,11 +43,11 @@ class Config:
     # Terminate the simulation
     TERMINATE_AT_END = False
     # Cluster size of the lidar
-    CLUSTER_SIZE = 18
+    CLUSTER_SIZE = 4
     # use observation rotation vector
     USE_OBSERVATION_ROTATION = True
     # Observation rotation vector size
-    OBSERVATION_ROTATION_SIZE = 32
+    OBSERVATION_ROTATION_SIZE = 128
 
     # Visualize for training
     VISUALIZE = True
@@ -58,19 +58,17 @@ class Config:
     # Load old models. Throws if the model doesn't exist
     LOAD_CHECKPOINT = False
     # If 0, the latest checkpoint is loaded
-    LOAD_EPISODE = 0  # 49000
-
-    #########################################################################
+    LOAD_EPISODE = 0#490000
+    ###################0#####################################################
     # Number of agents, predictors, trainers and other system settings
 
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 64  # 32
+    AGENTS = 32  # 32
     # Number of Predictors
     PREDICTORS = 8  # 2
     # Number of Trainers
     TRAINERS = 8  # 2
-
     # Device
     DEVICE = 'gpu:0'
 
@@ -83,7 +81,7 @@ class Config:
     # Algorithm parameters
 
     # Max step Iteration -> if read the environment ist done. 0 for endless.
-    MAX_STEP_ITERATION = 300  # 300
+    MAX_STEP_ITERATION = 1000  # 300
 
     # Discount factor
     DISCOUNT = 0.99
@@ -96,24 +94,24 @@ class Config:
     REWARD_MAX = 12
 
     # Max size of the queue
-    MAX_QUEUE_SIZE = 200  # 100
+    MAX_QUEUE_SIZE = 100  # 100
     PREDICTION_BATCH_SIZE = 128  # 128
 
     # Input of the CNN
-    STACKED_FRAMES = 2
-    OBSERVATION_SIZE = 60
+    STACKED_FRAMES = 4
+    OBSERVATION_SIZE = 270
 
     # Total number of episodes and annealing frequency
-    EPISODES = 400000
-    ANNEALING_EPISODE_COUNT = 400000
+    EPISODES = 40000
+    ANNEALING_EPISODE_COUNT = 40000
 
     # Entropy regualrization hyper-parameter
     BETA_START = 0.01
     BETA_END = 0.01
 
     # Learning rate
-    LEARNING_RATE_START = 0.0003  # 0.0003
-    LEARNING_RATE_END = 0.0003  # 0.0003
+    LEARNING_RATE_START = 0.0006  # 0.0003
+    LEARNING_RATE_END = 0.0001  # 0.0003
 
     # RMSProp parameters
     RMSPROP_DECAY = 0.99
@@ -129,7 +127,7 @@ class Config:
     # Epsilon (regularize policy lag in GA3C)
     LOG_EPSILON = 1e-6
     # Training min batch size - increasing the batch size increases the stability of the algorithm, but make learning slower
-    TRAINING_MIN_BATCH_SIZE = 32  # 128#0
+    TRAINING_MIN_BATCH_SIZE = 128  # 128#0
 
     #########################################################################
     # Log and save
