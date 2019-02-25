@@ -50,3 +50,6 @@ _LEVE Modus_
 - "room"       --> set_mode(Mode.ALL_RANDOM, terminate_at_end=False)     (hard)      -- Success would be very nice
 - "four_rooms" --> set_mode(Mode.ALL_RANDOM, terminate_at_end=False)     (very hard) -- Challenger
 
+
+Issues:
+For ubuntu 18.04 change python 3.5 to 3.6 and (python-py35 -> python.py36) in Simulation2d/CmakeLists.txt
