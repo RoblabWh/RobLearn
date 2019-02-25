@@ -52,4 +52,4 @@ _LEVE Modus_
 
 
 __Issues:__
-For ubuntu 18.04 change python 3.5 to 3.6 and (python-py35 -> python.py36) in Simulation2d/CmakeLists.txt
+For ubuntu 18.04 change python 3.5 to 3.6 and (python-py35 -> python.py36) in Simulation2d/CMakeLists.txt
