@@ -62,3 +62,12 @@ The modes control different environments. See worlds for details.
 __Issues:__
 - For ubuntu 18.04 change python 3.5 to 3.6 and (python-py35 -> python.py36) in Simulation2d/CMakeLists.txt
 - On some laptops sometimes gnuplot crashed (rarly).
+
+# Citation
+@article{Surmann:2019,
+  title={Deep Reinforcement learning for real autonomous mobile robot navigation in indoor environment},
+  author={{Hartmut Surmann, Christian Jestel, Robin Marchel, \\Franziska Musberg, Houssem Elhadj and Mahbube Ardani},
+  journal={},
+  year={2019},
+  publisher={}
+}
