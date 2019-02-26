@@ -1,5 +1,5 @@
 # Roblearn
-Training of a mobile robot equipped with a laser scanner and a RGB-D camera to navigated in unknown environments.
+Deep learning of a mobile robot equipped with a laser scanner and a RGB-D camera to navigated in unknown environments.
 
 # Installation
 The software was developed under Ubuntu 16.04 with tensorflow.
