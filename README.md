@@ -43,7 +43,7 @@ __Hint: Start the programm in a terminal since gnuplot blocked the desktop.__
 ./_ga3c_clean.sh &&
 ./_ga3c_train.sh
 ```
-The repository contains also some intermediate step with different architectures and simulation environements (Gazebo, torse). Developers can check the directories. 
+The repository contains also some intermediate step with different architectures and simulation environements (Gazebo, torse). Developers can check the directories. The directory ROS contains the software to run the trained network at a real robot e.g. turtle bot 2.
 
  # Dependencies
 - tensorflow
