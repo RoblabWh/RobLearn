@@ -50,7 +50,8 @@ __Hint: Start the programm in a terminal since gnuplot blocked the desktop.__
 - gnuplot-x11 (Visualierung)
 
 _LEVEL Modus_
-The modes control different environments. See worlds for details
+
+The modes control different environments. See worlds for details.
 
 - "test"       --> set_mode(Mode.ALL_COMBINATION, terminate_at_end=True) (easy)      -- Must work
 - "diff_forms" --> set_mode(Mode.PAIR_COMBINATION, terminate_at_end=True)(easy)      -- Must work
