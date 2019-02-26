@@ -1,5 +1,5 @@
 # Roblearn
-# h1 Installation
+# H1 Installation
 The software was developed under Ubuntu 16.04 with tensorflow.
 
 clone the Repo
@@ -36,7 +36,7 @@ python3 example_dqn.py
 
 __Hint: Start the programm in a terminal since gnuplot blocked the desktop.__
 
-# h1 Training
+# H1 Training
 
 
 Dependencies
