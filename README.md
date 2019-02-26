@@ -39,8 +39,9 @@ python3 example_dqn.py
 __Hint: Start the programm in a terminal since gnuplot blocked the desktop.__
 
 # Training
-``
+```
 ./_ga3c_clean.sh
+
 ./_ga3c_train.sh
 ```
 
