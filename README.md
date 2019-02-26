@@ -1,5 +1,5 @@
 # Roblearn
-Training of a mobile robot equippted with a laser scanner and RGBD camera to navigated in unknown environments.
+Training of a mobile robot equipped with a laser scanner and a RGB-D camera to navigated in unknown environments.
 
 # Installation
 The software was developed under Ubuntu 16.04 with tensorflow.
@@ -44,21 +44,20 @@ __Hint: Start the programm in a terminal since gnuplot blocked the desktop.__
 ./_ga3c_train.sh
 ```
 
-Dependencies
+ # Dependencies
 - tensorflow
 - keras
 - gnuplot-x11 (Visualierung)
 
-Probleme:
-- On some laptops sometimes gnuplot crashed (rarly).
+_LEVEL Modus_
+The modes control different environments. See worlds for details
 
-_LEVE Modus_
 - "test"       --> set_mode(Mode.ALL_COMBINATION, terminate_at_end=True) (easy)      -- Must work
 - "diff_forms" --> set_mode(Mode.PAIR_COMBINATION, terminate_at_end=True)(easy)      -- Must work
 - "roblab"     --> set_mode(Mode.ALL_COMBINATION, terminate_at_end=True) (medium)    -- Start is hard
 - "room"       --> set_mode(Mode.ALL_RANDOM, terminate_at_end=False)     (hard)      -- Success would be very nice
 - "four_rooms" --> set_mode(Mode.ALL_RANDOM, terminate_at_end=False)     (very hard) -- Challenger
 
-
 __Issues:__
-For ubuntu 18.04 change python 3.5 to 3.6 and (python-py35 -> python.py36) in Simulation2d/CMakeLists.txt
+- For ubuntu 18.04 change python 3.5 to 3.6 and (python-py35 -> python.py36) in Simulation2d/CMakeLists.txt
+- On some laptops sometimes gnuplot crashed (rarly).
