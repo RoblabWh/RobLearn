@@ -1,5 +1,7 @@
 # Roblearn
-# H1 Installation
+Training of a mobile robot equippted with a laser scanner and RGBD camera to navigated in unknown environments.
+
+# Installation
 The software was developed under Ubuntu 16.04 with tensorflow.
 
 clone the Repo
@@ -36,8 +38,11 @@ python3 example_dqn.py
 
 __Hint: Start the programm in a terminal since gnuplot blocked the desktop.__
 
-# H1 Training
-
+# Training
+``
+./_ga3c_clean.sh
+./_ga3c_train.sh
+```
 
 Dependencies
 - tensorflow
