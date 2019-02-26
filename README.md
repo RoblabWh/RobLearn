@@ -1,25 +1,26 @@
 # Roblearn
+# h1 Installation
+The software was developed under Ubuntu 16.04 with tensorflow.
 
-Repository clonen
-
+clone the Repo
 ```
 git clone https://github.com/RoblabWh/RobLearn
 ```
 
-Abhängigkeiten
+and install dependencies
 
 ```
 sudo apt-get install libeigen3-dev libboost-python-dev libboost-system-dev python3-dev inkscape python3-pip gnuplot-qt
 ```
 
-2D Simulation installieren
+For the 2D simulation do 
 
 ```
 cd NeuronalNetwork 
 bash build.sh
+(or bash build_avx.sh if our processor support AVX)
 ```
-
-Cuda 9.0  installieren (siehe -> cuda developer) + libcudnn (-> nvidia)
+For the installation of Cudo 9.0 see also cuda developer + libcudnn -> nvidia
 
 ```
 sudo dpkg -i libcudnn7_7.3.1.20-1+cuda9.0_amd64.deb
@@ -27,21 +28,24 @@ sudo dpkg -i libcudnn7-dev_7.3.1.20-1+cuda9.0_amd64.deb
 sudo -H pip3 install tensorflow-gpu keras numpy
 ```
 
-example_dqn.py ausführen
+If you can run example_dqn.py it works!!!
 
 ```
 python3 example_dqn.py
 ```
 
-__Hinweis: Example im Terminal starten, da die Gnuplot-Visualierung den Desktop blockiert__
+__Hint: Start the programm in a terminal since gnuplot blocked the desktop.__
 
-Abhängikeiten
+# h1 Training
+
+
+Dependencies
 - tensorflow
 - keras
 - gnuplot-x11 (Visualierung)
 
 Probleme:
-- Manchmal klappt die Gnuplot-Visualierung nicht.
+- On some laptops sometimes gnuplot crashed (rarly).
 
 _LEVE Modus_
 - "test"       --> set_mode(Mode.ALL_COMBINATION, terminate_at_end=True) (easy)      -- Must work
