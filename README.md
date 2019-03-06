@@ -1,6 +1,8 @@
 # Roblearn
 Deep learning of a mobile robot equipped with a laser scanner and a RGB-D camera to navigated in unknown environments.
 
+![Alt text](images/RoblearnRoboterplattform.png?raw=true "Title")
+
 Deep Reinforcement Learning has been successfully applied in various computer games. But it is still rarely used in real world applications especially for the navigation and continuous control of real mobile robots. Previous approaches lack of safety and robustness and/or need environmental interventions. In this project, we present our proof of concept to learn robot navigation in an unknown environment for a real robot without a map or planer. The input for the robot is only the fused data from a 2D laser scanner and a RGB-D camera as well as the orientation to the goal. The map of the environment is unknown. The output actions of an Asynchronous Advantage Actor-Critic network (GA3C) are the linear and angular velocities for the robot. The  navigator/controller network is pretrained in a very fast, parallel, self implemented simulation environment to speed up the learning process and then deployed to the real robot. To avoid over fitting we train relative small networks, and we add random Gaussian noise to the input laser data. The sensor data fusion with the RGB-D camera allows the robot to navigate in real environments with real 3D obstacle avoidance and without environmental interventions. To further increase the robustness we use different levels of difficulties of the environment and train 32 of them simultaneously.
 
 # Video
