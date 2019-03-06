@@ -87,3 +87,5 @@ __Issues:__
   publisher={}
 }
 ```
+# Credits
+Nvidia for GA3C, Google for tensorflow, Keras, Gnuplot, Ubuntu
