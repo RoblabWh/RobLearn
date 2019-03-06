@@ -32,6 +32,9 @@ For the installation of Cuda 9.0 see also cuda developer + libcudnn -> nvidia
 ```
 sudo dpkg -i libcudnn7_7.3.1.20-1+cuda9.0_amd64.deb
 sudo dpkg -i libcudnn7-dev_7.3.1.20-1+cuda9.0_amd64.deb 
+```
+
+```
 sudo -H pip3 install tensorflow-gpu keras numpy
 ```
 
