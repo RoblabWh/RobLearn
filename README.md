@@ -89,3 +89,9 @@ __Issues:__
 ```
 # Credits
 Nvidia for GA3C, Google for tensorflow, Keras, Gnuplot, Ubuntu
+
+# Know Problems
+could not found the following .. boost_python_py35 
+in CMakeList.txt line 19 
+find_package(Boost REQUIRED COMPONENTS system python-py35) #python-py36
+for Ubuntu 16.04
