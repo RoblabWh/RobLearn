@@ -79,9 +79,9 @@ __Issues:__
 
 # Citation
 ```bibtex
-@article{Surmann:2019,
+@article{:2019,
   title={Deep Reinforcement learning for real autonomous mobile robot navigation in indoor environment},
-  author={{Hartmut Surmann, Christian Jestel, Robin Marchel, \\Franziska Musberg, Houssem Elhadj and Mahbube Ardani},
+  author={{},
   journal={},
   year={2019},
   publisher={}
