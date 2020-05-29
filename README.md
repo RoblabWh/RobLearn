@@ -81,15 +81,8 @@ __Issues:__
 
 
 # Citation
-```bibtex
-@article{:2019,
-  title={Deep Reinforcement learning for real autonomous mobile robot navigation in indoor environment},
-  author={{},
-  journal={},
-  year={2019},
-  publisher={}
-}
-```
+https://arxiv.org/abs/2005.13857
+
 # Credits
 Nvidia for GA3C, Google for tensorflow, Keras, Gnuplot, Ubuntu
 
