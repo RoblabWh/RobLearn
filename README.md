@@ -8,6 +8,9 @@ Deep Reinforcement Learning has been successfully applied in various computer ga
 # Video
 Youtube https://www.youtube.com/watch?v=KyA2uTIQfxw, https://www.youtube.com/watch?v=skpUU6ggbCo
 
+# Paper (PDF)
+https://arxiv.org/abs/2005.13857
+
 # Installation
 The software was developed under Ubuntu 16.04 with tensorflow (GPU and CPU works)
 
